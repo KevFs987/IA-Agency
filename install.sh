@@ -152,6 +152,13 @@ main() {
     cp -r "$SOURCE_DIR/geo/"* "$INSTALL_DIR/"
     print_success "Main skill installed → ${INSTALL_DIR}/"
 
+    # ---- Install Agency Skill ----
+    if [ -d "$SOURCE_DIR/agency" ]; then
+        mkdir -p "${SKILLS_DIR}/agency"
+        cp -r "$SOURCE_DIR/agency/"* "${SKILLS_DIR}/agency/"
+        print_success "Agency skill installed → ${SKILLS_DIR}/agency/"
+    fi
+
     # ---- Install Sub-Skills ----
     print_info "Installing sub-skills..."
 

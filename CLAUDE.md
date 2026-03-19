@@ -207,5 +207,47 @@ avec les agents geo-social et geo-discover comme contribution open source.
 
 ---
 
+## 11. Extensions implémentées — état au 2026-03-18
+
+Toutes les extensions définies en section 4 sont **complètes et opérationnelles**.
+
+### Extensions priorité HAUTE (6/6)
+
+| Extension | Commande | Statut | Fichier |
+|-----------|----------|--------|---------|
+| geo-social | `/geo audit https://facebook.com/...` | ✅ Complète | `skills/geo-social/SKILL.md` |
+| geo-discover | `/geo audit "Nom de marque"` | ✅ Complète | `skills/geo-discover/SKILL.md` |
+| geo-readiness | `/geo readiness <url-ou-nom>` | ✅ Complète | `skills/geo-readiness/SKILL.md` |
+| geo-outreach | `/geo outreach <url-ou-nom>` | ✅ Complète | `skills/geo-outreach/SKILL.md` |
+| geo-teaser-report | `/geo teaser-report <url-ou-nom>` | ✅ Complète | `skills/geo-teaser-report/SKILL.md` |
+| geo-prep-call | `/geo prep-call <url-ou-nom>` | ✅ Complète | `skills/geo-prep-call/SKILL.md` |
+
+### Extensions priorité MOYENNE (4/4)
+
+| Extension | Commande | Statut | Fichier |
+|-----------|----------|--------|---------|
+| geo-social-to-site | `/geo social-to-site <url-sociale>` | ✅ Complète | `skills/geo-social-to-site/SKILL.md` |
+| geo-write-article | `/geo write-article <url> "<sujet>"` | ✅ Complète | `skills/geo-write-article/SKILL.md` |
+| geo-rewrite-page | `/geo rewrite-page <url>` | ✅ Complète | `skills/geo-rewrite-page/SKILL.md` |
+| geo-content-calendar | `/geo content-calendar <url> <mois>` | ✅ Complète | `skills/geo-content-calendar/SKILL.md` |
+
+### Commandes commerciales (1/1)
+
+| Commande | Statut | Fichier |
+|----------|--------|---------|
+| `/geo prospect scan "<niche>" "<ville>"` | ✅ Complète | `skills/geo-prospect/SKILL.md` v1.1.0 |
+
+### Pilotage interne
+
+| Commande | Statut | Fichier |
+|----------|--------|---------|
+| `/agency status` | ✅ Complète | `agency/SKILL.md` + `skills/agency-status/SKILL.md` |
+
+**Score global : 11/11 extensions implémentées (100%)**
+
+Générer un rapport d'état à jour : `/agency status`
+
+---
+
 *Ce fichier est la mémoire stratégique du projet.
 Le mettre à jour à chaque décision importante.*

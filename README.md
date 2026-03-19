@@ -31,14 +31,14 @@
 ### One-Command Install (macOS/Linux)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/zubair-trabzada/geo-seo-claude/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/KevFs987/IA-Agency/main/install.sh | bash
 ```
 
 ### Manual Install
 
 ```bash
-git clone https://github.com/zubair-trabzada/geo-seo-claude.git
-cd geo-seo-claude
+git clone https://github.com/KevFs987/IA-Agency.git
+cd IA-Agency
 ./install.sh
 ```
 
@@ -55,9 +55,11 @@ cd geo-seo-claude
 
 Open Claude Code and use these commands:
 
+**Audit & Analysis**
+
 | Command | What It Does |
 |---------|-------------|
-| `/geo audit <url>` | Full GEO + SEO audit with parallel subagents |
+| `/geo audit <url>` | Full GEO + SEO audit — also accepts social URLs and brand names |
 | `/geo quick <url>` | 60-second GEO visibility snapshot |
 | `/geo citability <url>` | Score content for AI citation readiness |
 | `/geo crawlers <url>` | Check AI crawler access (robots.txt) |
@@ -69,6 +71,46 @@ Open Claude Code and use these commands:
 | `/geo content <url>` | Content quality & E-E-A-T assessment |
 | `/geo report <url>` | Generate client-ready GEO report |
 | `/geo report-pdf` | Generate professional PDF report with charts & visualizations |
+
+**Marché local — commerces sans site web**
+
+| Command | What It Does |
+|---------|-------------|
+| `/geo readiness <url-ou-nom>` | Digital maturity report 0-4 (adapted for businesses without a website) |
+| `/geo audit https://facebook.com/...` | Audit from a social media URL (Facebook / Instagram / TikTok) |
+| `/geo audit "Nom de marque"` | Discover digital presence from a brand name alone |
+| `/geo social-to-site <url-sociale>` | Generate one-page bilingual FR/EN site brief from existing social content |
+
+**Prospection commerciale**
+
+| Command | What It Does |
+|---------|-------------|
+| `/geo prospect scan "<niche>" "<ville>"` | Scan local businesses, score each, filter < 50, ranked list |
+| `/geo teaser-report <url-ou-nom>` | 2-page prospecting PDF: score + 3 problems + CTA (no solutions, no pricing) |
+| `/geo outreach <url-ou-nom>` | Personalized prospecting message (email / DM / WhatsApp) |
+| `/geo prep-call <url-ou-nom>` | Pre-meeting briefing with pricing — internal use only |
+
+**CRM & Clients**
+
+| Command | What It Does |
+|---------|-------------|
+| `/geo prospect <cmd>` | CRM pipeline: new, list, show, note, status, won, lost, pipeline |
+| `/geo proposal <domain>` | Auto-generate client proposal from audit data |
+| `/geo compare <domain>` | Monthly delta report: show score improvements to client |
+
+**Contenu & Retainer**
+
+| Command | What It Does |
+|---------|-------------|
+| `/geo write-article <url> "<sujet>"` | LLM-optimized article: 134-167 word citable blocks, bilingual FR/EN |
+| `/geo rewrite-page <url>` | E-E-A-T rewrite of an existing page + commented diff |
+| `/geo content-calendar <url> <mois>` | N-month editorial calendar based on gaps + Polynesian seasonality |
+
+**Pilotage interne**
+
+| Command | What It Does |
+|---------|-------------|
+| `/agency status` | Self-diagnostic of the repo vs CLAUDE.md roadmap |
 
 ---
 

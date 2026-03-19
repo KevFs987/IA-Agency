@@ -6,7 +6,7 @@ set -euo pipefail
 # Run this script from Git Bash, NOT PowerShell or CMD.
 # ============================================================
 
-REPO_URL="https://github.com/zubair-trabzada/geo-seo-claude.git"
+REPO_URL="https://github.com/KevFs987/IA-Agency.git"
 CLAUDE_DIR="${HOME}/.claude"
 SKILLS_DIR="${CLAUDE_DIR}/skills"
 AGENTS_DIR="${CLAUDE_DIR}/agents"
@@ -184,6 +184,15 @@ main() {
     done
     echo "  -> ${SKILL_COUNT} sub-skills installed"
 
+    # ---- Install Agency Skill ----
+    print_info "Installing agency skill..."
+
+    if [ -d "$SOURCE_DIR/agency" ]; then
+        mkdir -p "${SKILLS_DIR}/agency"
+        cp -r "$SOURCE_DIR/agency/"* "${SKILLS_DIR}/agency/"
+        print_success "Agency skill installed -> ${SKILLS_DIR}/agency/"
+    fi
+
     # ---- Install Agents ----
     print_info "Installing subagents..."
 
@@ -307,7 +316,7 @@ main() {
     echo "    /geo report <url>     Client-ready GEO report"
     echo "    /geo report-pdf       Generate PDF report from audit data"
     echo ""
-    echo "  Documentation: https://github.com/zubair-trabzada/geo-seo-claude"
+    echo "  Documentation: https://github.com/KevFs987/IA-Agency"
     echo ""
 }
 
