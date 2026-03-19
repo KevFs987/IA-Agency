@@ -117,7 +117,7 @@ Open Claude Code and use these commands:
 ## Architecture
 
 ```
-geo-seo-claude/
+IA-Agency/
 ├── geo/                          # Main skill orchestrator
 │   └── SKILL.md                  # Primary skill file with commands & routing
 ├── skills/                       # 11 specialized sub-skills
