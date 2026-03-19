@@ -39,6 +39,15 @@ allowed-tools: Read, Grep, Glob, Bash, WebFetch, Write
 | `/geo prospect <cmd>` | CRM-lite: manage prospects through the sales pipeline |
 | `/geo proposal <domain>` | Auto-generate client proposal from audit data |
 | `/geo compare <domain>` | Monthly delta report: show score improvements to client |
+| `/geo readiness <url-ou-nom>` | Rapport de maturité digitale 0-4 (adapté aux commerces sans site) |
+| `/geo teaser-report <url-ou-nom>` | PDF sniper 2 pages : score + 3 problèmes + CTA (zéro solution, zéro tarif) |
+| `/geo outreach <url-ou-nom>` | Message de prospection personnalisé (email / DM / WhatsApp) |
+| `/geo prep-call <url-ou-nom>` | Briefing commercial avant RDV (avec tarifs — usage interne uniquement) |
+| `/geo prospect scan "<niche>" "<ville>"` | Scrape les entreprises locales, score chacune, filtre < 50, liste priorisée |
+| `/geo write-article <url> "<sujet>"` | Article optimisé LLM : blocs 134-167 mots, bilingue FR/EN, E-E-A-T intégré |
+| `/geo rewrite-page <url>` | Réécriture E-E-A-T d'une page existante + diff commenté pour le client |
+| `/geo content-calendar <url> <mois>` | Calendrier éditorial N mois basé sur les gaps + saisonnalité polynésienne |
+| `/geo social-to-site <url-sociale>` | Brief complet de site one-page FR/EN généré depuis le contenu social existant |
 
 ---
 
@@ -61,7 +70,16 @@ allowed-tools: Read, Grep, Glob, Bash, WebFetch, Write
 
 ## Orchestration Logic
 
-### Full Audit (`/geo audit <url>`)
+### Full Audit (`/geo audit <url-ou-nom>`)
+
+**Phase 0: Input Detection (Sequential)**
+Analyser l'argument reçu AVANT de lancer l'audit :
+
+| Input | Type | Action |
+|-------|------|--------|
+| URL `facebook.com`, `instagram.com`, `tiktok.com` | Social URL | → Lancer `geo-social` |
+| Texte entre guillemets ou sans `http` | Nom de marque | → Lancer `geo-discover` |
+| URL avec domaine `.pf`, `.com`, `.fr`, etc. | Site web | → Flux classique ci-dessous |
 
 **Phase 1: Discovery (Sequential)**
 1. Fetch homepage HTML (curl or WebFetch)
@@ -115,7 +133,7 @@ Adjust recommendations based on detected type. Local businesses need LocalBusine
 
 ---
 
-## Sub-Skills (10 Specialized Components)
+## Sub-Skills (24 Specialized Components)
 
 | # | Skill | Directory | Purpose |
 |---|-------|-----------|---------|
@@ -132,6 +150,16 @@ Adjust recommendations based on detected type. Local businesses need LocalBusine
 | 11 | geo-prospect | `skills/geo-prospect/` | CRM-lite prospect and client pipeline management |
 | 12 | geo-proposal | `skills/geo-proposal/` | Auto-generate client proposals from audit data |
 | 13 | geo-compare | `skills/geo-compare/` | Monthly delta tracking and progress reports |
+| 14 | geo-social | `skills/geo-social/` | Audit depuis URL Facebook / Instagram / TikTok |
+| 15 | geo-discover | `skills/geo-discover/` | Reconstruction de présence depuis un nom de marque seul |
+| 16 | geo-readiness | `skills/geo-readiness/` | Rapport de maturité digitale 0-4 pour commerces sans site |
+| 17 | geo-teaser-report | `skills/geo-teaser-report/` | PDF sniper prospection — score + 3 problèmes, zéro solution |
+| 18 | geo-outreach | `skills/geo-outreach/` | Message de prospection personnalisé (email / DM / WhatsApp) |
+| 19 | geo-prep-call | `skills/geo-prep-call/` | Briefing commercial avant RDV (usage interne) |
+| 20 | geo-write-article | `skills/geo-write-article/` | Article optimisé LLM bilingue FR/EN — blocs 134-167 mots |
+| 21 | geo-rewrite-page | `skills/geo-rewrite-page/` | Réécriture E-E-A-T d'une page existante |
+| 22 | geo-content-calendar | `skills/geo-content-calendar/` | Calendrier éditorial N mois, saisonnalité polynésienne |
+| 23 | geo-social-to-site | `skills/geo-social-to-site/` | Brief site one-page FR/EN depuis contenu social existant |
 
 ---
 
@@ -169,6 +197,15 @@ All commands generate structured output:
 | `/geo prospect` | Updates `~/.geo-prospects/prospects.json` |
 | `/geo proposal` | `~/.geo-prospects/proposals/<domain>-proposal-<date>.md` |
 | `/geo compare` | `~/.geo-prospects/reports/<domain>-monthly-<YYYY-MM>.md` |
+| `/geo readiness` | `GEO-READINESS-[nom]-[date].md` |
+| `/geo teaser-report` | `GEO-TEASER-[nom]-[date].md` (+ PDF optionnel) |
+| `/geo outreach` | `GEO-OUTREACH-[nom]-[date].md` (3 versions : email / DM / WhatsApp) |
+| `/geo prep-call` | `GEO-PREP-CALL-[nom]-[date].md` (confidentiel — usage interne) |
+| `/geo prospect scan` | `~/.geo-prospects/scans/[niche]-[ville]-[date].md` |
+| `/geo write-article` | `ARTICLE-[slug]-[date].md` (FR + EN dans le même fichier) |
+| `/geo rewrite-page` | `REWRITE-[slug-page]-[date].md` |
+| `/geo content-calendar` | `CONTENT-CALENDAR-[nom]-[periode].md` |
+| `/geo social-to-site` | `SITE-BRIEF-[nom]-[date].md` (brief complet prêt pour développeur) |
 
 ---
 

@@ -4,11 +4,13 @@ description: >
   CRM-lite for managing GEO agency prospects and clients. Track leads through
   the full sales pipeline: Lead → Qualified → Proposal Sent → Won → Lost.
   Store audit history, notes, deal values, and generate pipeline summaries.
-  Use when user says "prospect", "lead", "client", "pipeline", "crm", "nuovo prospect",
-  "aggiungi cliente", or when managing the business side of GEO services.
-version: 1.0.0
-tags: [geo, business, crm, prospect, pipeline, sales]
-allowed-tools: Read, Write, Bash, Glob
+  Includes automated local business discovery: scan a niche + city, score leads,
+  filter below 50, generate a prioritized prospect list.
+  Use when user says "prospect", "lead", "client", "pipeline", "crm", "scrape",
+  "find prospects", "trouver prospects", or when managing the business side of GEO services.
+version: 1.1.0
+tags: [geo, business, crm, prospect, pipeline, sales, scraping, decouverte, polynesie]
+allowed-tools: Read, Write, Bash, Glob, WebFetch
 ---
 
 # GEO Prospect Manager
@@ -34,6 +36,7 @@ All data is stored in `~/.geo-prospects/prospects.json` (persistent across sessi
 | `/geo prospect won <id-or-domain> <monthly-value>` | Mark as won, set contract value |
 | `/geo prospect lost <id-or-domain> "<reason>"` | Mark as lost with reason |
 | `/geo prospect pipeline` | Visual pipeline summary with revenue forecast |
+| `/geo prospect scan "<niche>" "<ville>"` | Découverte automatique : recherche N entreprises locales, score chacune, filtre < 50 |
 
 ---
 
@@ -186,8 +189,111 @@ Create directory if it does not exist: `mkdir -p ~/.geo-prospects/audits ~/.geo-
 
 ---
 
+### `/geo prospect scan "<niche>" "<ville>"`
+
+Commande de prospection automatisée — le cœur de la machine à leads.
+
+**Flux d'exécution :**
+
+1. **Recherche d'entreprises locales**
+
+   Construire les URLs de recherche :
+   ```
+   https://www.google.com/maps/search/[niche]+[ville]+polynésie+française
+   https://www.pagesjaunes.pf/annuaires/recherche?quoi=[niche]&ou=[ville]
+   ```
+   WebFetch de ces pages pour extraire :
+   - Nom de l'entreprise
+   - URL ou domaine (si disponible)
+   - Adresse
+   - Note Google / nombre d'avis
+   - Numéro de téléphone
+
+   Objectif : collecter 15-25 entreprises.
+
+2. **Scoring rapide de chaque entreprise**
+
+   Pour chaque entrée trouvée, lancer un mini-audit (30 secondes max) :
+   - Si URL connue → `/geo quick <url>` → score GEO (0-100)
+   - Si pas d'URL → `geo-discover "<nom>"` → score de maturité digitale (0-100)
+   - Si aucune donnée suffisante → score estimé selon présence Maps + avis
+
+3. **Filtrage et tri**
+
+   - Garder uniquement les entreprises avec score < 50
+   - Trier par score croissant (les plus faibles = opportunités les plus grandes)
+   - Éliminer les entreprises déjà dans `~/.geo-prospects/prospects.json`
+
+4. **Affichage du rapport de scan**
+
+   ```
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   SCAN PROSPECTS — "[niche]" à [ville] — [date]
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+   [N] entreprises trouvées → [M] avec score < 50 → [K] nouvelles
+
+   Rang  Nom                   Score  URL/Présence         Action suggérée
+   ────  ────────────────────  ─────  ───────────────────  ─────────────────────
+    1    Restaurant Te Moana   18/100  Facebook only        Priorité haute
+    2    Pension Chez Marie    24/100  Site basique         Priorité haute
+    3    Surf School Tahiti    31/100  Site sans SEO        Priorité moyenne
+    4    ...
+
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Prochaine étape : /geo prospect scan-add pour ajouter au CRM
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ```
+
+5. **Ajout au CRM**
+
+   Proposer d'ajouter les N meilleures opportunités au CRM :
+   ```
+   Voulez-vous ajouter ces [M] prospects au CRM ? (oui / sélectionner / non)
+   ```
+   Si oui → créer une entrée `lead` pour chacun avec les données trouvées.
+
+**Limites et bonne pratique :**
+- Les résultats dépendent de ce que Google Maps et Pages Jaunes exposent publiquement
+- Le score rapide est une estimation — toujours confirmer avec un audit complet
+- Ne pas envoyer le teaser-report sans audit complet préalable
+- Respecter un délai de 1-2 secondes entre chaque fetch pour ne pas se faire bloquer
+
+---
+
+## Storage Location
+
+All data stored in `~/.geo-prospects/`:
+```
+~/.geo-prospects/
+├── prospects.json          # Main CRM database
+├── audits/                 # Quick audit snapshots
+│   └── electron-srl.com-2026-03-12.md
+├── proposals/              # Generated proposals
+│   └── electron-srl.com-proposal.md
+└── scans/                  # Résultats de scan de niche
+    └── restaurants-papeete-2026-03-18.md
+```
+
+Create directory if it does not exist:
+`mkdir -p ~/.geo-prospects/audits ~/.geo-prospects/proposals ~/.geo-prospects/scans`
+
+---
+
+## Pipeline Stage Definitions
+
+| Status | Meaning | Typical Next Action |
+|--------|---------|---------------------|
+| `lead` | Discovered, not yet contacted | Run quick audit, assess opportunity |
+| `qualified` | Audit done, confirmed pain points | Generate teaser-report + outreach |
+| `proposal` | Proposal sent, awaiting decision | Follow up, prep-call |
+| `won` | Contract signed, active client | Run full audit, start onboarding |
+| `lost` | Deal closed lost | Log reason for future reference |
+
+---
+
 ## Output
 
 - All commands print confirmation + current prospect status to terminal
-- No external files unless explicitly saving audits/proposals
+- Scan results saved to `~/.geo-prospects/scans/`
 - JSON database is the single source of truth
