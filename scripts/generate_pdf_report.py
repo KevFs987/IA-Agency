@@ -49,20 +49,20 @@ except ImportError:
 
 
 # ============================================================
-# COLOR PALETTE
+# COLOR PALETTE — Mana IA
 # ============================================================
-PRIMARY = HexColor("#1a1a2e")       # Dark navy
-SECONDARY = HexColor("#16213e")     # Slightly lighter navy
-ACCENT = HexColor("#0f3460")        # Blue accent
-HIGHLIGHT = HexColor("#e94560")     # Red/coral highlight
-SUCCESS = HexColor("#00b894")       # Green
-WARNING = HexColor("#fdcb6e")       # Yellow/amber
-DANGER = HexColor("#d63031")        # Red
-INFO = HexColor("#0984e3")          # Blue
-LIGHT_BG = HexColor("#f8f9fa")      # Light background
-MEDIUM_BG = HexColor("#e9ecef")     # Medium background
-TEXT_PRIMARY = HexColor("#2d3436")   # Dark text
-TEXT_SECONDARY = HexColor("#636e72") # Grey text
+PRIMARY = HexColor("#085041")       # Vert Profond — titres, textes forts
+SECONDARY = HexColor("#1D9E75")     # Vert Lagon — couleur principale, accents
+ACCENT = HexColor("#1D9E75")        # Vert Lagon — boutons, accents, logo
+HIGHLIGHT = HexColor("#1D9E75")     # Vert Lagon
+SUCCESS = HexColor("#1D9E75")       # Vert Lagon
+WARNING = HexColor("#fdcb6e")       # Ambre
+DANGER = HexColor("#d63031")        # Rouge
+INFO = HexColor("#1D9E75")          # Vert Lagon
+LIGHT_BG = HexColor("#E1F5EE")      # Lagon Clair — backgrounds, badges
+MEDIUM_BG = HexColor("#F1EFE8")     # Sable — sections alternées
+TEXT_PRIMARY = HexColor("#2C2C2A")  # Basalte — corps de texte
+TEXT_SECONDARY = HexColor("#636e72") # Gris texte secondaire
 WHITE = white
 BLACK = black
 
@@ -84,13 +84,83 @@ def get_score_label(score):
     if score >= 85:
         return "Excellent"
     elif score >= 70:
-        return "Good"
+        return "Bon"
     elif score >= 55:
-        return "Moderate"
+        return "Moyen"
     elif score >= 40:
-        return "Below Average"
+        return "Insuffisant"
     else:
-        return "Needs Attention"
+        return "Critique"
+
+
+# ============================================================
+# JARGON TRANSLATION — Mana IA Brand Rules
+# ============================================================
+JARGON_MAP = [
+    # (pattern to detect, client-facing replacement)
+    ("schema markup absent",        "Vos produits sont invisibles sur Google Shopping"),
+    ("no schema markup",            "Vos produits sont invisibles sur Google Shopping"),
+    ("structured data",             "données de contexte pour les IA"),
+    ("crawl-delay",                 "délai de lecture par les robots IA"),
+    ("crawl delay",                 "délai de lecture par les robots IA"),
+    ("llms.txt",                    "fichier de guidage pour ChatGPT"),
+    ("no llms.txt",                 "ChatGPT ne comprend pas ce que vous vendez"),
+    ("missing llms.txt",            "ChatGPT ne comprend pas ce que vous vendez"),
+    ("e-e-a-t",                     "confiance accordée par les IA"),
+    ("eeat",                        "confiance accordée par les IA"),
+    ("no e-e-a-t",                  "Les IA ne vous font pas encore confiance"),
+    ("aucun signal e-e-a-t",        "Les IA ne vous font pas encore confiance"),
+    ("server-side rendering",       "chargement lisible par les robots"),
+    ("ssr",                         "chargement lisible par les robots"),
+    ("client-side rendering",       "contenu invisible aux robots IA"),
+    ("javascript-only rendering",   "contenu invisible aux robots IA"),
+    ("robots.txt",                  "fichier d'accès aux robots"),
+    ("schema.org",                  "données structurées"),
+    ("json-ld",                     "données structurées"),
+    ("core web vitals",             "performance perçue par Google"),
+    ("cwv",                         "performance perçue par Google"),
+    ("indexnow",                    "notification instantanée des moteurs"),
+    ("sameAs",                      "liens entre vos profils en ligne"),
+]
+
+
+def translate_jargon(text: str) -> str:
+    """Replace technical jargon with client-facing language (case-insensitive)."""
+    if not text:
+        return text
+    result = text
+    for technical, client in JARGON_MAP:
+        import re
+        result = re.sub(re.escape(technical), client, result, flags=re.IGNORECASE)
+    return result
+
+
+def draw_logo(width=160, height=40):
+    """Draw the Mana IA logo mark using ReportLab shapes."""
+    d = Drawing(width, height)
+
+    # Wave shape — 3 arcs suggesting a rising ocean wave
+    wave_color = ACCENT
+    cx, cy = 22, 20
+
+    # Outer wave arc
+    d.add(Wedge(cx, cy - 4, 18, 20, 160, fillColor=wave_color, strokeColor=None))
+    # Inner cutout (white)
+    d.add(Wedge(cx, cy - 4, 12, 20, 160, fillColor=WHITE, strokeColor=None))
+    # Small inner arc
+    d.add(Wedge(cx, cy - 4, 8, 25, 155, fillColor=wave_color, strokeColor=None))
+    # Core dot
+    d.add(Circle(cx, cy - 4, 3, fillColor=WHITE, strokeColor=None))
+
+    # "Mana IA" text
+    d.add(String(46, 24, "Mana IA",
+                 fontSize=16, fontName='Helvetica-Bold',
+                 fillColor=PRIMARY, textAnchor='start'))
+    d.add(String(46, 10, "Agence IA Polynésie",
+                 fontSize=7, fontName='Helvetica',
+                 fillColor=TEXT_SECONDARY, textAnchor='start'))
+
+    return d
 
 
 def create_score_gauge(score, width=120, height=120):
@@ -301,29 +371,53 @@ def build_styles():
 
 
 def header_footer(canvas, doc):
-    """Add header and footer to each page."""
+    """Add Mana IA header and footer to each page."""
     canvas.saveState()
 
-    # Header line
+    page_width = letter[0]
+    page_height = letter[1]
+
+    # ---- HEADER ----
+    # Green band
+    canvas.setFillColor(PRIMARY)
+    canvas.rect(50, page_height - 44, page_width - 100, 24, fill=1, stroke=0)
+
+    # "Mana IA" in white, left-aligned in band
+    canvas.setFont('Helvetica-Bold', 9)
+    canvas.setFillColor(WHITE)
+    canvas.drawString(58, page_height - 36, "Mana IA  ·  Analyse GEO")
+
+    # "CONFIDENTIEL" right-aligned in band
+    canvas.setFont('Helvetica', 8)
+    canvas.drawRightString(page_width - 58, page_height - 36, "CONFIDENTIEL")
+
+    # Accent line below band
     canvas.setStrokeColor(ACCENT)
-    canvas.setLineWidth(2)
-    canvas.line(50, letter[1] - 40, letter[0] - 50, letter[1] - 40)
+    canvas.setLineWidth(1.5)
+    canvas.line(50, page_height - 46, page_width - 50, page_height - 46)
 
-    # Header text
-    canvas.setFont('Helvetica', 8)
+    # ---- FOOTER ----
+    canvas.setStrokeColor(ACCENT)
+    canvas.setLineWidth(0.8)
+    canvas.line(50, 42, page_width - 50, 42)
+
+    canvas.setFont('Helvetica', 7.5)
     canvas.setFillColor(TEXT_SECONDARY)
-    canvas.drawString(50, letter[1] - 35, "GEO-SEO Analysis Report")
 
-    # Footer
-    canvas.setStrokeColor(lightgrey)
-    canvas.setLineWidth(0.5)
-    canvas.line(50, 40, letter[0] - 50, 40)
+    # Left: date
+    canvas.drawString(50, 30,
+                      f"Rapport du {datetime.now().strftime('%d/%m/%Y')}")
 
-    canvas.setFont('Helvetica', 8)
+    # Center: brand signature
+    canvas.setFillColor(PRIMARY)
+    canvas.setFont('Helvetica-Bold', 7.5)
+    canvas.drawCentredString(page_width / 2, 30,
+                             "Rapport généré par Mana IA  ·  mana-ia.pf  ·  Papeete, Polynésie française")
+
+    # Right: page number
     canvas.setFillColor(TEXT_SECONDARY)
-    canvas.drawString(50, 28, f"Generated {datetime.now().strftime('%B %d, %Y')}")
-    canvas.drawRightString(letter[0] - 50, 28, f"Page {doc.page}")
-    canvas.drawCentredString(letter[0] / 2, 28, "Confidential")
+    canvas.setFont('Helvetica', 7.5)
+    canvas.drawRightString(page_width - 50, 30, f"Page {doc.page}")
 
     canvas.restoreState()
 
@@ -402,15 +496,27 @@ def generate_report(data, output_path="GEO-REPORT.pdf"):
     # ============================================================
     # COVER PAGE
     # ============================================================
-    elements.append(Spacer(1, 100))
+    elements.append(Spacer(1, 60))
+
+    # Logo mark
+    elements.append(draw_logo(200, 50))
+    elements.append(Spacer(1, 24))
 
     # Title
-    elements.append(Paragraph("GEO Analysis Report", styles['ReportTitle']))
-    elements.append(Spacer(1, 8))
+    elements.append(Paragraph("Rapport d'Analyse GEO", styles['ReportTitle']))
+    elements.append(Spacer(1, 6))
+
+    # Tagline
+    elements.append(Paragraph(
+        "<i>L'intelligence artificielle, à votre échelle.</i>",
+        ParagraphStyle('Tagline', parent=styles['ReportSubtitle'],
+                       textColor=ACCENT, fontSize=12, spaceAfter=8)
+    ))
+    elements.append(Spacer(1, 4))
 
     # Subtitle
     elements.append(Paragraph(
-        f"Generative Engine Optimization Audit for <b>{brand_name}</b>",
+        f"Audit de visibilité sur les moteurs IA pour <b>{brand_name}</b>",
         styles['ReportSubtitle']
     ))
 
@@ -418,9 +524,9 @@ def generate_report(data, output_path="GEO-REPORT.pdf"):
 
     # Key details table
     details_data = [
-        ["Website", url],
-        ["Analysis Date", datetime.strptime(date, "%Y-%m-%d").strftime("%B %d, %Y") if "-" in date else date],
-        ["GEO Score", f"{geo_score}/100 — {get_score_label(geo_score)}"],
+        ["Site web", url],
+        ["Date d'analyse", datetime.strptime(date, "%Y-%m-%d").strftime("%d/%m/%Y") if "-" in date else date],
+        ["Score GEO", f"{geo_score}/100 — {get_score_label(geo_score)}"],
     ]
 
     details_table = Table(details_data, colWidths=[120, 350])
@@ -457,18 +563,18 @@ def generate_report(data, output_path="GEO-REPORT.pdf"):
     # ============================================================
     # EXECUTIVE SUMMARY
     # ============================================================
-    elements.append(Paragraph("Executive Summary", styles['SectionHeader']))
+    elements.append(Paragraph("Synthèse", styles['SectionHeader']))
     elements.append(HRFlowable(width="100%", thickness=1, color=ACCENT, spaceAfter=12))
 
     if executive_summary:
-        elements.append(Paragraph(executive_summary, styles['BodyText_Custom']))
+        elements.append(Paragraph(translate_jargon(executive_summary), styles['BodyText_Custom']))
     else:
         elements.append(Paragraph(
-            f"This report presents the findings of a comprehensive Generative Engine Optimization (GEO) "
-            f"audit conducted on <b>{brand_name}</b> ({url}). The analysis evaluated the website's readiness "
-            f"for AI-powered search engines including Google AI Overviews, ChatGPT, Perplexity, Gemini, "
-            f"and Bing Copilot. The overall GEO Readiness Score is <b>{geo_score}/100</b>, "
-            f"placing the site in the <b>{get_score_label(geo_score)}</b> tier.",
+            f"Ce rapport présente les résultats d'un audit GEO complet réalisé sur <b>{brand_name}</b> ({url}). "
+            f"L'analyse évalue la visibilité du site auprès des moteurs de recherche IA : "
+            f"Google AI Overviews, ChatGPT, Perplexity, Gemini et Bing Copilot. "
+            f"Le score global de maturité GEO est de <b>{geo_score}/100</b>, "
+            f"niveau <b>{get_score_label(geo_score)}</b>.",
             styles['BodyText_Custom']
         ))
 
@@ -477,18 +583,18 @@ def generate_report(data, output_path="GEO-REPORT.pdf"):
     # ============================================================
     # SCORE BREAKDOWN
     # ============================================================
-    elements.append(Paragraph("GEO Score Breakdown", styles['SectionHeader']))
+    elements.append(Paragraph("Détail du Score GEO", styles['SectionHeader']))
     elements.append(HRFlowable(width="100%", thickness=1, color=ACCENT, spaceAfter=12))
 
     score_data = [
-        ["Component", "Score", "Weight", "Weighted"],
-        ["AI Citability & Visibility", f"{ai_citability}/100", "25%", f"{round(ai_citability * 0.25, 1)}"],
-        ["Brand Authority Signals", f"{brand_authority}/100", "20%", f"{round(brand_authority * 0.20, 1)}"],
-        ["Content Quality & E-E-A-T", f"{content_eeat}/100", "20%", f"{round(content_eeat * 0.20, 1)}"],
-        ["Technical Foundations", f"{technical}/100", "15%", f"{round(technical * 0.15, 1)}"],
-        ["Structured Data", f"{schema_score}/100", "10%", f"{round(schema_score * 0.10, 1)}"],
-        ["Platform Optimization", f"{platform_optimization}/100", "10%", f"{round(platform_optimization * 0.10, 1)}"],
-        ["OVERALL", f"{geo_score}/100", "100%", f"{geo_score}"],
+        ["Composante", "Score", "Poids", "Pondéré"],
+        ["Citabilité & Visibilité IA", f"{ai_citability}/100", "25%", f"{round(ai_citability * 0.25, 1)}"],
+        ["Autorité de marque", f"{brand_authority}/100", "20%", f"{round(brand_authority * 0.20, 1)}"],
+        ["Qualité du contenu & confiance IA", f"{content_eeat}/100", "20%", f"{round(content_eeat * 0.20, 1)}"],
+        ["Fondations techniques", f"{technical}/100", "15%", f"{round(technical * 0.15, 1)}"],
+        ["Données structurées", f"{schema_score}/100", "10%", f"{round(schema_score * 0.10, 1)}"],
+        ["Optimisation par plateforme", f"{platform_optimization}/100", "10%", f"{round(platform_optimization * 0.10, 1)}"],
+        ["TOTAL", f"{geo_score}/100", "100%", f"{geo_score}"],
     ]
 
     score_table = Table(score_data, colWidths=[200, 80, 60, 80])
@@ -519,12 +625,12 @@ def generate_report(data, output_path="GEO-REPORT.pdf"):
     # ============================================================
     # AI PLATFORM READINESS
     # ============================================================
-    elements.append(Paragraph("AI Platform Readiness", styles['SectionHeader']))
+    elements.append(Paragraph("Visibilité par Moteur IA", styles['SectionHeader']))
     elements.append(HRFlowable(width="100%", thickness=1, color=ACCENT, spaceAfter=12))
 
     elements.append(Paragraph(
-        "These scores reflect how likely your content is to be cited by each AI search platform. "
-        "A score below 50 indicates significant barriers to citation on that platform.",
+        "Ces scores indiquent la probabilité que votre contenu soit cité par chaque moteur IA. "
+        "Un score inférieur à 50 signifie que ce moteur ne peut pas vous recommander à vos clients potentiels.",
         styles['BodyText_Custom']
     ))
     elements.append(Spacer(1, 10))
@@ -555,12 +661,12 @@ def generate_report(data, output_path="GEO-REPORT.pdf"):
     # ============================================================
     # AI CRAWLER ACCESS
     # ============================================================
-    elements.append(Paragraph("AI Crawler Access Status", styles['SectionHeader']))
+    elements.append(Paragraph("Accès des Robots IA", styles['SectionHeader']))
     elements.append(HRFlowable(width="100%", thickness=1, color=ACCENT, spaceAfter=12))
 
     elements.append(Paragraph(
-        "Blocking AI crawlers prevents AI platforms from citing your content. "
-        "The table below shows which AI crawlers can currently access your site.",
+        "Bloquer les robots IA empêche les moteurs de vous citer dans leurs réponses. "
+        "Le tableau ci-dessous indique quels robots peuvent actuellement lire votre site.",
         styles['BodyText_Custom']
     ))
     elements.append(Spacer(1, 8))
@@ -634,7 +740,7 @@ def generate_report(data, output_path="GEO-REPORT.pdf"):
         elements.append(ct)
     else:
         elements.append(Paragraph(
-            "<i>Run /geo crawlers to populate this section with AI crawler access data.</i>",
+            "<i>Lancez /geo crawlers pour remplir cette section avec les données d'accès robots.</i>",
             styles['BodyText_Custom']
         ))
 
@@ -643,14 +749,21 @@ def generate_report(data, output_path="GEO-REPORT.pdf"):
     # ============================================================
     # KEY FINDINGS
     # ============================================================
-    elements.append(Paragraph("Key Findings", styles['SectionHeader']))
+    elements.append(Paragraph("Points Clés", styles['SectionHeader']))
     elements.append(HRFlowable(width="100%", thickness=1, color=ACCENT, spaceAfter=12))
+
+    SEV_LABELS = {
+        "CRITICAL": "CRITIQUE",
+        "HIGH": "IMPORTANT",
+        "MEDIUM": "MOYEN",
+        "INFO": "INFO",
+    }
 
     if findings:
         for finding in findings:
             severity = finding.get("severity", "info").upper()
-            title = finding.get("title", "")
-            description = finding.get("description", "")
+            title = translate_jargon(finding.get("title", ""))
+            description = translate_jargon(finding.get("description", ""))
 
             if severity == "CRITICAL":
                 sev_color = DANGER
@@ -661,8 +774,9 @@ def generate_report(data, output_path="GEO-REPORT.pdf"):
             else:
                 sev_color = TEXT_SECONDARY
 
+            sev_label = SEV_LABELS.get(severity, severity)
             elements.append(Paragraph(
-                f'<font color="{sev_color.hexval()}">[{severity}]</font> <b>{title}</b>',
+                f'<font color="{sev_color.hexval()}">[{sev_label}]</font> <b>{title}</b>',
                 styles['BodyText_Custom']
             ))
             if description:
@@ -670,7 +784,7 @@ def generate_report(data, output_path="GEO-REPORT.pdf"):
             elements.append(Spacer(1, 4))
     else:
         elements.append(Paragraph(
-            "<i>Run a full /geo audit to populate findings.</i>",
+            "<i>Lancez un /geo audit complet pour remplir cette section.</i>",
             styles['BodyText_Custom']
         ))
 
@@ -679,30 +793,35 @@ def generate_report(data, output_path="GEO-REPORT.pdf"):
     # ============================================================
     # PRIORITIZED ACTION PLAN
     # ============================================================
-    elements.append(Paragraph("Prioritized Action Plan", styles['SectionHeader']))
+    elements.append(Paragraph("Plan d'Action Prioritaire", styles['SectionHeader']))
     elements.append(HRFlowable(width="100%", thickness=1, color=ACCENT, spaceAfter=12))
 
+    def render_actions(action_list):
+        for i, action in enumerate(action_list, 1):
+            if isinstance(action, dict):
+                act = translate_jargon(action.get('action', ''))
+                impact = translate_jargon(action.get('impact', ''))
+                text = f"<b>{i}.</b> {act} — <i>{impact}</i>"
+            else:
+                text = f"<b>{i}.</b> {translate_jargon(str(action))}"
+            elements.append(Paragraph(text, styles['Recommendation']))
+
     # Quick Wins
-    elements.append(Paragraph("Quick Wins (This Week)", styles['SubHeader']))
+    elements.append(Paragraph("Gains immédiats (cette semaine)", styles['SubHeader']))
     elements.append(Paragraph(
-        "High impact, low effort — can be implemented immediately.",
+        "Impact fort, effort faible — peut être mis en œuvre immédiatement.",
         styles['SmallText']
     ))
 
     if quick_wins:
-        for i, action in enumerate(quick_wins, 1):
-            if isinstance(action, dict):
-                text = f"<b>{i}.</b> {action.get('action', '')} — <i>{action.get('impact', '')}</i>"
-            else:
-                text = f"<b>{i}.</b> {action}"
-            elements.append(Paragraph(text, styles['Recommendation']))
+        render_actions(quick_wins)
     else:
         default_wins = [
-            "Allow all Tier 1 AI crawlers in robots.txt (GPTBot, ClaudeBot, PerplexityBot)",
-            "Add publication and last-updated dates to all content pages",
-            "Add author bylines with credentials to blog posts and articles",
-            "Create an llms.txt file to guide AI systems to your key content",
-            "Add sameAs properties to Organization schema linking to all platform profiles",
+            "Autoriser tous les robots IA dans le fichier d'accès aux robots (GPTBot, ClaudeBot, PerplexityBot)",
+            "Ajouter les dates de publication et de mise à jour sur toutes les pages de contenu",
+            "Ajouter les noms et expertises des auteurs sur les articles",
+            "Créer un fichier de guidage pour ChatGPT pointant vers vos pages clés",
+            "Relier tous vos profils en ligne dans les données de contexte pour les IA",
         ]
         for i, action in enumerate(default_wins, 1):
             elements.append(Paragraph(f"<b>{i}.</b> {action}", styles['Recommendation']))
@@ -710,26 +829,21 @@ def generate_report(data, output_path="GEO-REPORT.pdf"):
     elements.append(Spacer(1, 12))
 
     # Medium-Term
-    elements.append(Paragraph("Medium-Term Improvements (This Month)", styles['SubHeader']))
+    elements.append(Paragraph("Améliorations à court terme (ce mois)", styles['SubHeader']))
     elements.append(Paragraph(
-        "Significant impact, moderate effort — requires content or technical changes.",
+        "Impact significatif, effort modéré — nécessite des modifications de contenu ou techniques.",
         styles['SmallText']
     ))
 
     if medium_term:
-        for i, action in enumerate(medium_term, 1):
-            if isinstance(action, dict):
-                text = f"<b>{i}.</b> {action.get('action', '')} — <i>{action.get('impact', '')}</i>"
-            else:
-                text = f"<b>{i}.</b> {action}"
-            elements.append(Paragraph(text, styles['Recommendation']))
+        render_actions(medium_term)
     else:
         default_medium = [
-            "Restructure top 10 pages with question-based headings and direct answer blocks",
-            "Implement comprehensive Organization + Article + Person schema markup",
-            "Optimize content blocks for AI citability (134-167 word self-contained passages)",
-            "Ensure server-side rendering for all public content pages",
-            "Implement IndexNow protocol for Bing/Copilot indexing speed",
+            "Restructurer les 10 meilleures pages avec des titres sous forme de questions",
+            "Mettre en place les données de contexte pour les IA (Organisation, Article, Personne)",
+            "Optimiser les blocs de contenu pour la citabilité IA (passages de 134-167 mots)",
+            "Activer le chargement lisible par les robots sur toutes les pages publiques",
+            "Mettre en place la notification instantanée des moteurs pour Bing/Copilot",
         ]
         for i, action in enumerate(default_medium, 1):
             elements.append(Paragraph(f"<b>{i}.</b> {action}", styles['Recommendation']))
@@ -737,26 +851,21 @@ def generate_report(data, output_path="GEO-REPORT.pdf"):
     elements.append(Spacer(1, 12))
 
     # Strategic
-    elements.append(Paragraph("Strategic Initiatives (This Quarter)", styles['SubHeader']))
+    elements.append(Paragraph("Initiatives stratégiques (ce trimestre)", styles['SubHeader']))
     elements.append(Paragraph(
-        "Long-term competitive advantage — requires ongoing investment.",
+        "Avantage concurrentiel durable — nécessite un investissement continu.",
         styles['SmallText']
     ))
 
     if strategic:
-        for i, action in enumerate(strategic, 1):
-            if isinstance(action, dict):
-                text = f"<b>{i}.</b> {action.get('action', '')} — <i>{action.get('impact', '')}</i>"
-            else:
-                text = f"<b>{i}.</b> {action}"
-            elements.append(Paragraph(text, styles['Recommendation']))
+        render_actions(strategic)
     else:
         default_strategic = [
-            "Build Wikipedia/Wikidata entity presence through press coverage and notability",
-            "Develop active Reddit community engagement strategy in relevant subreddits",
-            "Create YouTube content strategy aligned with AI-searched queries",
-            "Establish original research/data publication program for unique citability",
-            "Build topical authority through comprehensive content clusters",
+            "Construire une présence Wikipedia/Wikidata par la presse et la notoriété",
+            "Développer une stratégie d'engagement dans les communautés en ligne pertinentes",
+            "Créer du contenu YouTube aligné sur les requêtes recherchées par les IA",
+            "Lancer un programme de publication de données originales pour la citabilité unique",
+            "Développer une autorité thématique par des clusters de contenu complets",
         ]
         for i, action in enumerate(default_strategic, 1):
             elements.append(Paragraph(f"<b>{i}.</b> {action}", styles['Recommendation']))
@@ -766,49 +875,49 @@ def generate_report(data, output_path="GEO-REPORT.pdf"):
     # ============================================================
     # METHODOLOGY & GLOSSARY
     # ============================================================
-    elements.append(Paragraph("Appendix: Methodology", styles['SectionHeader']))
+    elements.append(Paragraph("Annexe : Méthodologie", styles['SectionHeader']))
     elements.append(HRFlowable(width="100%", thickness=1, color=ACCENT, spaceAfter=12))
 
     elements.append(Paragraph(
-        f"This GEO audit was conducted on {date} analyzing {url}. "
-        "The analysis evaluated the website across six dimensions: AI Citability & Visibility (25%), "
-        "Brand Authority Signals (20%), Content Quality & E-E-A-T (20%), Technical Foundations (15%), "
-        "Structured Data (10%), and Platform Optimization (10%).",
+        f"Cet audit GEO a été réalisé le {date} sur {url}. "
+        "L'analyse évalue le site sur six dimensions : Citabilité & Visibilité IA (25%), "
+        "Autorité de marque (20%), Qualité du contenu & confiance IA (20%), "
+        "Fondations techniques (15%), Données structurées (10%), Optimisation par plateforme (10%).",
         styles['BodyText_Custom']
     ))
 
     elements.append(Spacer(1, 8))
 
     elements.append(Paragraph(
-        "<b>Platforms assessed:</b> Google AI Overviews, ChatGPT Web Search, Perplexity AI, "
+        "<b>Moteurs évalués :</b> Google AI Overviews, ChatGPT Web Search, Perplexity AI, "
         "Google Gemini, Bing Copilot",
         styles['BodyText_Custom']
     ))
 
     elements.append(Paragraph(
-        "<b>Standards referenced:</b> Google Search Quality Rater Guidelines (Dec 2025), "
-        "Schema.org specification, Core Web Vitals (2026 thresholds), "
-        "llms.txt emerging standard, RSL 1.0 licensing framework",
+        "<b>Référentiels utilisés :</b> Google Search Quality Rater Guidelines (déc. 2025), "
+        "spécification Schema.org, Core Web Vitals (seuils 2026), "
+        "standard llms.txt, cadre de licence RSL 1.0",
         styles['BodyText_Custom']
     ))
 
     elements.append(Spacer(1, 16))
 
     # Glossary
-    elements.append(Paragraph("Glossary", styles['SubHeader']))
+    elements.append(Paragraph("Lexique", styles['SubHeader']))
 
     glossary = [
-        ["Term", "Definition"],
-        ["GEO", "Generative Engine Optimization — optimizing content for AI search citation"],
-        ["AIO", "AI Overviews — Google's AI-generated answer boxes in search results"],
-        ["E-E-A-T", "Experience, Expertise, Authoritativeness, Trustworthiness"],
-        ["SSR", "Server-Side Rendering — generating HTML on the server for crawler access"],
-        ["CWV", "Core Web Vitals — Google's page experience metrics (LCP, INP, CLS)"],
-        ["INP", "Interaction to Next Paint — responsiveness metric (replaced FID March 2024)"],
-        ["JSON-LD", "JavaScript Object Notation for Linked Data — preferred structured data format"],
-        ["sameAs", "Schema.org property linking an entity to its profiles on other platforms"],
-        ["llms.txt", "Proposed standard file for guiding AI systems about site content"],
-        ["IndexNow", "Protocol for instantly notifying search engines of content changes"],
+        ["Terme", "Définition"],
+        ["GEO", "Generative Engine Optimization — optimiser le contenu pour être cité par les IA"],
+        ["AIO", "AI Overviews — réponses IA générées par Google en tête des résultats"],
+        ["E-E-A-T", "Expérience, Expertise, Autorité, Fiabilité — critères de confiance des IA"],
+        ["SSR", "Chargement côté serveur — le HTML est généré pour être lisible par les robots"],
+        ["CWV", "Core Web Vitals — indicateurs de performance perçue par Google (LCP, INP, CLS)"],
+        ["INP", "Interaction to Next Paint — mesure de réactivité (remplace FID depuis mars 2024)"],
+        ["JSON-LD", "Format préféré pour les données de contexte pour les IA"],
+        ["sameAs", "Propriété qui relie une entité à ses profils sur d'autres plateformes"],
+        ["llms.txt", "Fichier standard pour guider les IA vers le contenu important du site"],
+        ["IndexNow", "Protocole de notification instantanée des moteurs lors des mises à jour"],
     ]
 
     gt = Table(glossary, colWidths=[80, 380])
@@ -820,9 +929,9 @@ def generate_report(data, output_path="GEO-REPORT.pdf"):
     # Footer disclaimer
     elements.append(HRFlowable(width="100%", thickness=0.5, color=lightgrey, spaceAfter=8))
     elements.append(Paragraph(
-        "This report was generated by the GEO-SEO Claude Code Analysis Tool. "
-        "Scores and recommendations are based on automated analysis and industry benchmarks. "
-        "Results should be validated with platform-specific testing.",
+        "Rapport généré par Mana IA — Agence IA Polynésie française · contact@mana-ia.pf · mana-ia.pf · Papeete, Tahiti. "
+        "Les scores et recommandations sont basés sur une analyse automatisée et des références sectorielles. "
+        "Les résultats doivent être validés avec des tests spécifiques à chaque plateforme.",
         styles['SmallText']
     ))
 
