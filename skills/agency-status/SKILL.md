@@ -6,7 +6,7 @@ description: >
   évalue la qualité des skills, et produit un rapport d'avancement honnête.
   Usage interne — ne modifie aucun fichier existant.
 version: 1.0.0
-author: geo-seo-claude / IA-Agency Polynésie
+author: IA-Agency Polynésie
 tags: [agency, status, diagnostic, roadmap, audit-interne, meta]
 allowed-tools: Read, Glob, Grep, Bash
 ---
@@ -34,6 +34,19 @@ avec les prochaines actions prioritaires.
 
 ---
 
+## Phase 0 — Contexte depuis knowledge/ (optionnel)
+
+Avant d'exécuter ce skill, charger le contexte disponible dans la base de connaissances.
+
+1. `Glob("knowledge/marche/*.md")` + `Glob("knowledge/scoring/*.md")` + `Glob("knowledge/inspiration/*.md")`
+2. Si notes présentes → `Read` les 1 à 3 plus récentes dont le champ `expires` est supérieur à la date du jour
+3. Extraire les sections `## Implications scoring` et `## Idées d'implémentation`
+4. Intégrer ces données dans l'analyse, les recommandations et les livrables de ce skill
+
+→ **Si `knowledge/` est absent ou vide : passer directement à l'étape suivante (non-bloquant)**
+
+---
+
 ### Phase 1 — Cartographie du repo
 
 Identifier le répertoire racine du projet (là où est CLAUDE.md et install.sh).
@@ -47,29 +60,15 @@ Glob("**/*")
 Dresser l'inventaire par dossier :
 - Nom du dossier
 - Nombre de fichiers contenus
-- Présent dans le repo original Zoubair ? ou **addition du fork** ?
+- Skill de base IA-Agency ou extension ?
 
-**Référence : contenu du repo original zubair-trabzada/geo-seo-claude**
-
-Dossiers originaux :
-- `agents/`
-- `assets/`
-- `geo/`
-- `schema/`
-- `scripts/`
-- `skills/` (avec seulement les 14 skills originaux)
-
-Fichiers originaux à la racine :
-- `install.sh`, `uninstall.sh`, `requirements.txt`
-- `README.md`, `.gitignore`, `LICENSE`
-
-Skills originaux (14) :
+**Skills de base (14) :**
 `geo-audit`, `geo-brand-mentions`, `geo-citability`, `geo-compare`,
 `geo-content`, `geo-crawlers`, `geo-llmstxt`, `geo-platform-optimizer`,
 `geo-proposal`, `geo-prospect` (v1.0), `geo-report-pdf`, `geo-report`,
 `geo-schema`, `geo-technical`
 
-**Tout ce qui dépasse cette liste = addition du fork.**
+**Tout ce qui dépasse cette liste = extension IA-Agency.**
 
 ---
 
@@ -155,7 +154,7 @@ Extraire la liste complète des extensions définies et vérifier leur statut :
 
 - **geo/SKILL.md** : les nouvelles commandes y sont-elles déclarées dans la Quick Reference ?
 - **install.sh** : copie-t-il les skills de façon générique (`for skill_dir in skills/*/`) ?
-- **README.md** : pointe-t-il vers le bon fork (KevFs987) ou encore vers Zoubair ?
+- **README.md** : pointe-t-il vers le bon repo (KevFs987/IA-Agency) ?
 - **CLAUDE.md** : a-t-il été mis à jour pour refléter les extensions développées ?
 
 ---
@@ -178,9 +177,9 @@ Construire le rapport complet en markdown.
 
 | Métrique | Valeur |
 |---------|--------|
-| Fichiers repo original (référence) | ~45 fichiers |
-| Fichiers dans ce fork | [N] fichiers |
-| Additions du fork | [N - 45] fichiers |
+| Skills de base (référence) | 14 skills |
+| Fichiers total | [N] fichiers |
+| Extensions IA-Agency | [N - base] fichiers |
 | CLAUDE.md présent | ✅ Oui / 🚨 Non |
 | Skills originaux intacts | ✅ / ⚠ [détail si problème] |
 

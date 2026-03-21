@@ -20,6 +20,19 @@ This skill generates a professional, visually polished PDF report from GEO audit
 
 ## How to Generate a PDF Report
 
+## Phase 0 — Contexte depuis knowledge/ (optionnel)
+
+Avant d'exécuter ce skill, charger le contexte disponible dans la base de connaissances.
+
+1. `Glob("knowledge/marche/*.md")` + `Glob("knowledge/scoring/*.md")` + `Glob("knowledge/inspiration/*.md")`
+2. Si notes présentes → `Read` les 1 à 3 plus récentes dont le champ `expires` est supérieur à la date du jour
+3. Extraire les sections `## Implications scoring` et `## Idées d'implémentation`
+4. Intégrer ces données dans l'analyse, les recommandations et les livrables de ce skill
+
+→ **Si `knowledge/` est absent ou vide : passer directement à l'étape suivante (non-bloquant)**
+
+---
+
 ### Step 1: Collect Audit Data
 
 After running a full `/geo-audit`, collect all scores, findings, and recommendations into a JSON structure. The JSON data must follow this schema:

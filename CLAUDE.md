@@ -1,4 +1,4 @@
-# Contexte stratégique — Fork geo-seo-claude
+# Contexte stratégique — IA-Agency
 # Marché cible : Polynésie française
 
 Ce fichier donne à Claude Code le contexte complet du projet.
@@ -6,18 +6,17 @@ Lire ce fichier avant toute tâche de développement ou d'audit.
 
 ---
 
-## 1. Ce que ce fork est censé devenir
+## 1. Ce qu'est IA-Agency
 
-Ce n'est pas un simple clone du repo de Zoubair Trabzada.
 C'est la base d'une **agence marketing IA locale** adaptée au marché polynésien,
-avec des extensions qui n'existent pas dans le repo original.
+avec des extensions conçues spécifiquement pour les marchés peu digitalisés.
 
 L'objectif final : un seul outil qui permet à une personne de gérer
 15 à 20 clients avec les marges d'un logiciel, pas d'une agence traditionnelle.
 
 ---
 
-## 2. Limites du repo original à garder en tête
+## 2. Limites à garder en tête
 
 - L'outil suppose qu'une URL de site web existe en entrée → **non valide pour ~50% du marché local**
 - C'est un outil d'audit uniquement → il ne produit pas de contenu, n'exécute pas les recommandations
@@ -51,7 +50,7 @@ Toute production de contenu doit être pensée **bilingue FR/EN par défaut**.
 
 ---
 
-## 4. Extensions prioritaires à développer dans ce fork
+## 4. Extensions prioritaires
 
 ### Extension 1 — geo-social (PRIORITÉ HAUTE)
 Nouveau sous-agent qui accepte une URL Facebook, Instagram ou TikTok en entrée.
@@ -185,14 +184,11 @@ vous n'apparaissez pas dans les réponses. Voici pourquoi et comment y remédier
 
 ---
 
-## 9. Ce que ce fork apporte au repo original
+## 9. Universalité des extensions
 
 Ces extensions sont universelles — pas seulement utiles en Polynésie.
 Le cas "Social only" existe dans tous les marchés émergents :
 Afrique subsaharienne, Caraïbes, îles du Pacifique, TPE en Europe.
-
-L'objectif à terme : soumettre une Pull Request au repo de Zoubair
-avec les agents geo-social et geo-discover comme contribution open source.
 
 ---
 
@@ -207,7 +203,7 @@ avec les agents geo-social et geo-discover comme contribution open source.
 
 ---
 
-## 11. Extensions implémentées — état au 2026-03-18
+## 11. Extensions implémentées — état au 2026-03-20
 
 Toutes les extensions définies en section 4 sont **complètes et opérationnelles**.
 
@@ -242,8 +238,37 @@ Toutes les extensions définies en section 4 sont **complètes et opérationnell
 | Commande | Statut | Fichier |
 |----------|--------|---------|
 | `/agency status` | ✅ Complète | `agency/SKILL.md` + `skills/agency-status/SKILL.md` |
+| `/agency new-skill` | ✅ Complète | `skills/skill-creator/SKILL.md` |
 
-**Score global : 11/11 extensions implémentées (100%)**
+### Knowledge Vault — `/vault`
+
+| Commande | Statut | Fichier |
+|----------|--------|---------|
+| `/vault research "<sujet>" [--category ...]` | ✅ Complète | `skills/vault-research/SKILL.md` |
+| `/vault veille [--mois YYYY-MM]` | ✅ Complète | `skills/vault-veille/SKILL.md` |
+
+**Score global : 14/14 extensions implémentées (100%)**
+
+### Architecture — Knowledge Vault
+
+Le vault `knowledge/` est le **cerveau central du projet**, consultable par tous les skills.
+
+```
+knowledge/
+  index.md          ← index auto-mis à jour
+  marche/           ← données marché Polynésie française
+  scoring/          ← calibration des scores GEO
+  inspiration/      ← innovations importées (US, EU, CN, marchés comparables)
+  sales/            ← techniques de vente, prospection, closing
+  marketing/        ← marketing digital, campagnes, social media
+  ooh-dooh/         ← Out-of-Home et Digital Out-of-Home
+  veille/           ← rapports delta mensuels (5 vecteurs)
+  concurrents/      ← benchmark concurrents locaux
+  prospects/        ← fiches prospects enrichies
+```
+
+Tous les skills du projet lisent le vault en **Phase 0 optionnelle** avant d'agir.
+Le vault est alimenté par `/vault research` (à la demande) et `/vault veille` (mensuel).
 
 Générer un rapport d'état à jour : `/agency status`
 
