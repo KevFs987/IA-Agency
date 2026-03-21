@@ -28,6 +28,11 @@ env/
 # Logs
 *.log
 
+# Knowledge vault — données sensibles clients (ne pas publier)
+knowledge/veille/
+knowledge/prospects/
+knowledge/concurrents/
+
 # Output files (generated reports - may contain sensitive client data)
 /GEO-*.md
 /GEO-*.pdf
