@@ -263,6 +263,9 @@ Pour chaque **trouvaille significative** (statistique clé, cas client, innovati
 🗂️ Index mis à jour
 ```
 
+**Affichage du rapport** :
+Après la confirmation, lire et afficher intégralement le contenu de `knowledge/veille/veille-<YYYY-MM>.md` dans la conversation — pour que l'utilisateur puisse lire le rapport directement et s'en servir pour orienter ses décisions prospects et stratégiques.
+
 ---
 
 ## Règles importantes

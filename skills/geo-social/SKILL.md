@@ -3,12 +3,13 @@ name: geo-social
 description: >
   Audit de présence digitale depuis une URL de réseau social (Facebook, Instagram, TikTok).
   Pour les entreprises sans site web — cas dominant en Polynésie française.
-  Extrait : nom, description, abonnés, fréquence de publication, avis, signaux d'autorité.
-  Identifie les gaps (site absent, GMB manquant, schema absent) et produit un score 0-100.
-version: 1.0.0
+  Architecture : extraction de base (Phase 1) + 5 agents spécialisés en parallèle (Phase 2)
+  → Brand Entity AI, Local Listings, Cross-Platform Consistency, Content Quality, Sentiment.
+  Produit un score de maturité digitale (0-100) et un diagnostic LLM complet.
+version: 2.0.0
 author: geo-seo-claude / IA-Agency Polynésie
-tags: [geo, social, facebook, instagram, tiktok, polynesie, local, audit]
-allowed-tools: Read, Write, WebFetch, Bash
+tags: [geo, social, facebook, instagram, tiktok, polynesie, local, audit, llm, geo-ready]
+allowed-tools: Read, Write, WebFetch, Bash, Agent
 ---
 
 # GEO Social — Audit depuis Réseau Social
@@ -29,9 +30,27 @@ comme **unique vitrine** — situation courante pour ~40% des commerces polynés
 
 Produire :
 1. Un **profil de présence digitale** complet
-2. Un **score de maturité digitale** (0-100)
-3. Les **gaps prioritaires** (ce qui manque et son impact)
+2. Un **score de maturité digitale GEO** (0-100) — agrégat des 5 dimensions spécialisées
+3. Les **gaps prioritaires** (ce qui manque et son impact sur les LLM)
 4. Les **recommandations concrètes** adaptées au niveau réel
+5. Les **livrables clients** : thermomètre LLM, plan avis, JSON-LD sameAs, kit contenu
+
+## Architecture v2.0 — 5 agents spécialisés en parallèle
+
+```
+Phase 1 — Extraction de base (ce skill)
+  ↓ données sociales brutes
+  ↓
+Phase 2 — 5 agents spécialisés lancés EN PARALLÈLE
+  ├── geo-social-brand-ai      → Brand Entity Score (0-100)
+  ├── geo-social-local-listings → Local Listings Score (0-100)
+  ├── geo-social-cross-platform → Cross-Platform Score (0-100)
+  ├── geo-social-content-quality → Content Quality Score (0-100)
+  └── geo-social-sentiment     → Sentiment Score (0-100)
+  ↓
+Phase 3 — Agrégation + rapport final (ce skill)
+  Score GEO Social = moyenne pondérée des 5 scores
+```
 
 ---
 
@@ -115,6 +134,74 @@ Si le fetch retourne une page vide ou un login wall :
 
 ---
 
+## Étape 2.5 — Packaging des données pour les agents
+
+Après l'extraction (étape 2), consolider un objet `social_context` à passer aux 5 agents :
+
+```json
+{
+  "brand_name":     "[nom exact de la page]",
+  "brand_variants": "[variantes de nom détectées si plusieurs]",
+  "business_type":  "[restaurant / hôtel / commerce / activité / service / autre]",
+  "location":       "[ville + île]",
+  "phone":          "[+689 XX XX XX XX ou absent]",
+  "address":        "[adresse ou absent]",
+  "website_listed": "[URL ou absent]",
+  "facebook_url":   "[URL ou absent]",
+  "instagram_url":  "[URL ou absent]",
+  "tiktok_url":     "[URL ou absent]",
+  "followers":      "[N]",
+  "last_post_date": "[date]",
+  "post_frequency": "[posts/semaine estimé]",
+  "bio_text":       "[texte complet de la bio]",
+  "account_type":   "[personnel / page_pro / inconnu]"
+}
+```
+
+---
+
+## Phase 2 — Lancement des 5 agents en parallèle
+
+Lancer les 5 agents **simultanément** en passant le `social_context` à chacun.
+Ne pas attendre la fin d'un agent pour lancer le suivant.
+
+```
+LANCEMENT PARALLÈLE :
+
+Agent 1 → Read agents/geo-social-brand-ai.md
+          Données : social_context complet
+          Objectif : Brand Entity Score + diagnostic citations LLM
+
+Agent 2 → Read agents/geo-social-local-listings.md
+          Données : brand_name, business_type, location
+          Objectif : Local Listings Score + chaîne alimentation LLM
+
+Agent 3 → Read agents/geo-social-cross-platform.md
+          Données : social_context + URLs agents 1-2
+          Objectif : Cross-Platform Score + JSON-LD sameAs généré
+
+Agent 4 → Read agents/geo-social-content-quality.md
+          Données : social_context (bio, fréquence, account_type)
+          Objectif : Content Quality Score + kit quick wins contenu
+
+Agent 5 → Read agents/geo-social-sentiment.md
+          Données : brand_name, business_type, location, plateformes
+          Objectif : Sentiment Score + thermomètre LLM + plan avis
+```
+
+Collecter les outputs de chaque agent :
+
+```
+agent_scores:
+  brand_ai:        [0-100] + gaps_list
+  local_listings:  [0-100] + gaps_list
+  cross_platform:  [0-100] + json_ld_block + gaps_list
+  content_quality: [0-100] + templates_list + gaps_list
+  sentiment:       [0-100] + thermometre_llm + plan_avis + gaps_list
+```
+
+---
+
 ## Étape 3 — Recherche de présence complémentaire
 
 Après extraction sociale, rechercher les traces complémentaires :
@@ -135,133 +222,167 @@ Après extraction sociale, rechercher les traces complémentaires :
 
 ---
 
-## Étape 4 — Calcul du Score de Maturité Digitale (0-100)
+## Phase 3 — Agrégation des scores et Score GEO Social final
 
-### Composantes du score
+### Formule d'agrégation
 
-| Composante | Poids | Description |
-|-----------|-------|-------------|
-| Présence sociale active | 25% | Page existante, posts récents (< 2 semaines), engagement |
-| Informations de contact | 20% | Adresse, téléphone, email accessibles |
-| Présence hors-social | 20% | Google Maps, TripAdvisor, Pages Jaunes |
-| Qualité du profil | 15% | Bio complète, catégorie, horaires, photos de couverture |
-| Site web | 15% | Présent et fonctionnel |
-| Signaux de confiance | 5% | Avis, note, ancienneté de la page |
+Le Score GEO Social final est une **moyenne pondérée** des 5 scores spécialisés.
+Pondération calibrée pour le marché PF (fort tourisme, priorité LLM) :
 
-### Barème par composante
+| Agent | Score | Poids | Justification |
+|-------|-------|-------|--------------|
+| Sentiment & Reputation | [0-100] | **25%** | Levier n°1 sur les LLM — la note débloque ou bloque tout |
+| Local Listings | [0-100] | **25%** | GBP = alimentation directe Gemini + ChatGPT |
+| Brand Entity AI | [0-100] | **20%** | Reconnaissance entité = citabilité LLM long terme |
+| Content Quality | [0-100] | **15%** | Contenu citable = visibilité Perplexity et ChatGPT |
+| Cross-Platform | [0-100] | **15%** | Cohérence NAP = unification entité LLM |
 
-**Présence sociale active (25 pts max)**
-- Page existante : 5 pts
-- Post dans les 7 derniers jours : 10 pts
-- Post dans les 30 derniers jours : 5 pts
-- Engagement visible (commentaires, likes) : 5 pts
+```python
+score_geo_social = (
+    score_sentiment       * 0.25 +
+    score_local_listings  * 0.25 +
+    score_brand_ai        * 0.20 +
+    score_content_quality * 0.15 +
+    score_cross_platform  * 0.15
+)
+# Arrondi à l'entier le plus proche
+```
 
-**Informations de contact (20 pts max)**
-- Numéro de téléphone visible : 7 pts
-- Adresse physique visible : 7 pts
-- Email ou formulaire de contact : 6 pts
+> **Contexte marché PF (DataReportal jan. 2025)** : TikTok atteint 67,5% des adultes 18+ en PF,
+> quasi-parité avec Facebook (82,3%). Messenger actif (badge réponse rapide < 15 min) = signal
+> de contact fort à noter dans les informations de contact lors de l'extraction (étape 2).
 
-**Présence hors-social (20 pts max)**
-- Fiche Google My Business confirmée : 10 pts
-- TripAdvisor / Pages Jaunes : 5 pts chacun
+### Score → Niveau de maturité digitale GEO
 
-**Qualité du profil (15 pts max)**
-- Bio / description complète (> 50 mots) : 5 pts
-- Catégorie d'activité définie : 3 pts
-- Horaires d'ouverture mentionnés : 4 pts
-- Photos de couverture professionnelles : 3 pts
-
-**Site web (15 pts max)**
-- Site présent et fonctionnel : 10 pts
-- HTTPS : 3 pts
-- Mobile-friendly apparent : 2 pts
-
-**Signaux de confiance (5 pts max)**
-- Note moyenne ≥ 4/5 avec ≥ 10 avis : 5 pts
-- Note moyenne ≥ 3.5/5 avec ≥ 5 avis : 3 pts
-- Avis présents mais peu nombreux : 1 pt
-
-### Score → Niveau de maturité
-
-| Score | Niveau | Interprétation |
-|-------|--------|----------------|
-| 0-20 | Niveau 0-1 | Présence très limitée |
-| 21-40 | Niveau 1 | Social only, bases manquantes |
-| 41-60 | Niveau 1-2 | Social actif mais gaps importants |
-| 61-80 | Niveau 2-3 | Bonne base, optimisation possible |
-| 81-100 | Niveau 3-4 | Présence solide |
+| Score | Niveau | Interprétation LLM |
+|-------|--------|--------------------|
+| 0-20 | Niveau 0 | Invisible — aucun LLM ne peut citer cet établissement |
+| 21-40 | Niveau 1 | Social only — bases absentes, LLM ne cite pas |
+| 41-60 | Niveau 1-2 | Social actif mais gaps critiques LLM non comblés |
+| 61-80 | Niveau 2-3 | Bonne base — commence à apparaître dans Gemini/Perplexity |
+| 81-100 | Niveau 3-4 | GEO-ready — citable par ChatGPT, Perplexity et Gemini |
 
 ---
 
-## Étape 5 — Génération du Rapport
+## Phase 3 — Génération du Rapport Final
 
 ### Structure du rapport
 
 ```markdown
-# Audit Social — [Nom de l'entreprise]
+# Audit GEO Social — [Nom de l'entreprise]
 **Plateforme analysée :** [Facebook / Instagram / TikTok]
 **URL :** [url]
 **Date :** [date]
+**Type de présence :** [Social only / Multiplateforme]
 
 ---
 
-## Score de Maturité Digitale : [XX]/100
+## Score GEO Social : [XX]/100
 
-[Une phrase de contexte : "Ce score reflète la visibilité digitale globale
-de [nom] — pas seulement votre présence sur [plateforme], mais votre
-capacité à être trouvé par de nouveaux clients en ligne."]
+[Une phrase de contexte : "Ce score mesure votre visibilité sur les moteurs
+de recherche IA — ChatGPT, Perplexity, Gemini — pas seulement votre présence
+sur [plateforme]. C'est là que vos futurs clients touristes cherchent avant
+même d'arriver en Polynésie."]
+
+### Détail par dimension
+
+| Dimension | Score | Poids | Contribution |
+|----------|-------|-------|-------------|
+| Réputation & Avis | [XX]/100 | 25% | [XX] pts |
+| Annuaires locaux | [XX]/100 | 25% | [XX] pts |
+| Entité de marque IA | [XX]/100 | 20% | [XX] pts |
+| Qualité du contenu | [XX]/100 | 15% | [XX] pts |
+| Cohérence multi-plateformes | [XX]/100 | 15% | [XX] pts |
+| **Score final** | | | **[XX]/100** |
+
+---
+
+## 🌡️ Thermomètre LLM
+
+| Moteur IA | Note actuelle | Seuil requis | Statut |
+|----------|--------------|-------------|--------|
+| ChatGPT | [X.X★ / N avis] | 4,3★ | ✅ Actif / ❌ Non actif |
+| Perplexity | [X.X★ TripAdvisor] | 4,1★ | ✅ Actif / ❌ Non actif |
+| Gemini | [X.X★ Google Maps] | 3,9★ | ✅ Actif / ❌ Non actif |
 
 ---
 
 ## Ce que nous avons trouvé
 
 ### Présence sur [Plateforme]
-| Élément | Valeur | Évaluation |
-|---------|--------|------------|
-| Abonnés / Likes | [N] | [Bon / Moyen / Faible pour le marché local] |
+| Élément | Valeur | Signal LLM |
+|---------|--------|-----------|
+| Type de compte | [Page pro / Compte personnel ⚠️] | [Fort / Faible] |
+| Abonnés | [N] | [Contexte marché local] |
 | Fréquence de publication | [X posts/semaine] | [Actif / Irrégulier / Inactif] |
-| Dernier post | [date ou estimation] | [Récent / Ancien] |
-| Bio complète | ✓ / ✗ | [Note] |
-| Infos de contact | ✓ / ✗ | [Note] |
-| Lien vers site web | ✓ [url] / ✗ Absent | [Note] |
+| Dernier post | [date] | [Récent / ⚠️ > 3 mois] |
+| Bio bilingue FR/EN | ✓ / ✗ | [Touristes accessibles / Invisible EN] |
+| Infos de contact | ✓ / ✗ | [NAP signal présent / absent] |
 
-### Présence hors réseaux sociaux
-| Plateforme | Statut | Impact |
-|-----------|--------|--------|
-| Google My Business | ✓ Présent ([note]/5, [N] avis) / ✗ Absent | [Impact] |
-| TripAdvisor | ✓ / ✗ | [Impact] |
-| Pages Jaunes | ✓ / ✗ | [Impact] |
-| Site web | ✓ [url] / ✗ Absent | [Impact] |
+### Présence sur les annuaires
+| Plateforme | Statut | LLM alimenté |
+|-----------|--------|-------------|
+| Google Business Profile | ✅ Vérifiée / ⚠️ Auto / ❌ Absente | Gemini + ChatGPT |
+| TripAdvisor | ✅ [X★, N avis] / ❌ Absent / N.A. | Perplexity |
+| Pages Jaunes PF | ✅ / ❌ | Perplexity + Google |
+| Site web | ✅ [url] / ❌ Absent | — |
 
 ---
 
 ## Les 3 Gaps Prioritaires
 
 ### Gap 1 — [Titre du gap le plus impactant]
-**Problème :** [Description en 1-2 phrases, impact concret]
-**Ce que ça veut dire pour vous :** [Traduction business — ex : "Vos clients
-touristes qui cherchent 'restaurant Moorea' sur Google ne vous trouvent pas"]
+**Problème :** [Description en 1-2 phrases]
+**Ce que ça veut dire :** [Impact LLM concret — ex : "Vos clients touristes qui
+demandent 'meilleur restaurant Moorea' à ChatGPT ne vous trouvent pas."]
+**Délai de correction :** [X min / X heures / X semaines]
 
 ### Gap 2 — [Titre]
 **Problème :** [...]
-**Ce que ça veut dire pour vous :** [...]
+**Ce que ça veut dire :** [...]
+**Délai de correction :** [...]
 
 ### Gap 3 — [Titre]
 **Problème :** [...]
-**Ce que ça veut dire pour vous :** [...]
+**Ce que ça veut dire :** [...]
+**Délai de correction :** [...]
 
 ---
 
-## Recommandations Prioritaires
+## Plan Avis (si note < seuil ChatGPT)
 
-1. **[Action 1 — la plus urgente]**
-   → [Description courte et concrète]
+Pour apparaître dans les recommandations ChatGPT (seuil 4,3★) :
+→ **[N] avis 5★ supplémentaires** nécessaires
+→ Pour Perplexity (4,1★) : **[N] avis** _(ou déjà atteint ✅)_
+→ Pour Gemini (3,9★) : **[N] avis** _(ou déjà atteint ✅)_
+
+---
+
+## Kit Quick Wins Contenu
+
+[Inclure les templates générés par geo-social-content-quality
+correspondant aux gaps détectés — uniquement les templates pertinents,
+personnalisés avec les données réelles]
+
+---
+
+## Bloc sameAs JSON-LD (livrable technique)
+
+[Reproduire le bloc JSON-LD généré par geo-social-cross-platform]
+_À intégrer dans le futur site web — conservez ce document._
+
+---
+
+## Recommandations Prioritaires (classées par ROI)
+
+1. **[Action 1 — impact maximum / effort minimum]**
+   → [Description concrète] — [Délai estimé]
 
 2. **[Action 2]**
-   → [Description]
+   → [Description] — [Délai]
 
 3. **[Action 3]**
-   → [Description]
+   → [Description] — [Délai]
 
 ---
 
@@ -272,7 +393,7 @@ comprendre exactement ce qui manque et comment y remédier,
 je suis disponible pour un appel de 30 minutes."]
 
 ---
-*Audit généré par IA-Agency Polynésie — [date]*
+*Audit GEO Social v2.0 — IA-Agency Polynésie — [date]*
 ```
 
 ---

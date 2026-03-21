@@ -127,6 +127,9 @@ tables de Moorea pour des amis qui arrivent en avril."
 Je m'appelle [Prénom], je travaille sur la visibilité digitale des entreprises
 polynésiennes — en particulier leur présence sur Google et les intelligences
 artificielles que les touristes utilisent pour planifier leur voyage.
+(Note pour la rédaction : ChatGPT est actuellement le 4ème site le plus visité
+en Polynésie française — 70 000 visites/mois, avant Instagram. C'est un argument
+concret à glisser naturellement si le prospect n'est pas sensibilisé au GEO.)
 
 En regardant rapidement votre présence en ligne, j'ai remarqué [problème
 spécifique réel — ex : "que votre restaurant n'apparaît pas dans les réponses
@@ -156,6 +159,7 @@ Super contenu, [commentaire sincère sur quelque chose de spécifique].
 
 Je travaille sur la visibilité digitale des commerces polynésiens,
 notamment leur présence sur Google et les IA utilisées par les touristes.
+(ChatGPT est le 4ème site le plus visité en PF — 70 000 visites/mois, avant Instagram.)
 
 Question directe : savez-vous si votre [restaurant / hôtel / boutique]
 apparaît quand quelqu'un cherche "[requête typique]" sur ChatGPT ou Google ?
@@ -203,6 +207,8 @@ in Moorea / looking for activities in Tahiti / etc.].
 
 I help local Polynesian businesses show up where tourists are actually
 looking — Google, ChatGPT, and other AI tools people use to plan their trips.
+(ChatGPT is currently the 4th most visited website in French Polynesia —
+70,000 visits per month, ahead of Instagram.)
 
 I took a quick look at your online presence and noticed [specific problem
 in plain language — e.g., "your hotel doesn't appear in ChatGPT responses

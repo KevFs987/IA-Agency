@@ -124,6 +124,13 @@ contenu structuré pour être cité par les LLMs.
 | llms.txt | ✗ | ✗ | ✗ | ✗ | ✓ |
 | Crawlers IA autorisés | - | - | ✗ | Variable | ✓ |
 | Contenu citable (LLM) | ✗ | ✗ | ✗ | Faible | ✓ |
+| **Note ≥ 4,3/5 (IA-ready)** ★ | ✗ | ✗ | ✗ | Recommandé | **Requis** |
+
+> ★ **Seuil IA-ready (données SOCi / ChatGPT 2026)** : ChatGPT recommande les établissements
+> ayant en moyenne **4,1 à 4,3 étoiles minimum**. Les avis fonctionnent comme un filtre d'accès,
+> pas comme un signal de ranking. Un établissement sans avis ou sous 4,0 est structurellement
+> invisible dans les recommandations ChatGPT/Gemini/Perplexity, quel que soit son niveau technique.
+> → Mentionner ce seuil explicitement dans le rapport pour les niveaux 3 et 4.
 
 ---
 

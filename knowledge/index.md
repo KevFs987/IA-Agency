@@ -51,6 +51,7 @@ version: 1.0.0
 
 ## veille/
 *Rapports delta mensuels (5 vecteurs)*
+- [[veille-2026-03]] — Veille mensuelle Mars 2026 — 2026-03-20
 <!-- AUTO: veille links -->
 
 ---
@@ -64,3 +65,10 @@ version: 1.0.0
 ## prospects/
 *Fiches prospects enrichies par la recherche*
 <!-- AUTO: prospects links -->
+
+---
+
+## agents/
+*Architecture et documentation des agents spécialisés*
+- [[geo-social-architecture]] — Architecture 5 agents geo-social v2.0 : rôles, calibrations PF, sources, formule d'agrégation — 2026-03-20
+<!-- AUTO: agents links -->

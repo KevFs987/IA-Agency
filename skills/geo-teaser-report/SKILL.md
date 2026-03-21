@@ -89,6 +89,12 @@ Critères de sélection (dans l'ordre) :
 
 ### Bibliothèque de problèmes par catégorie
 
+> 💡 **Argument d'ancrage** (à utiliser si le prospect ne comprend pas ce qu'est le GEO) :
+> ChatGPT est le **4ème site le plus visité en Polynésie française** — 70 000 visites/mois, avant Instagram.
+> C'est là que vos futurs clients planifient leur voyage. Formulation rapport : *"ChatGPT reçoit
+> plus de visites que Instagram en Polynésie. Quand quelqu'un cherche '[votre activité]' dessus,
+> est-ce que vous apparaissez ?"*
+
 **Pour les restaurants / bars / cafés :**
 - "Absent de Google Maps → [N]% des recherches 'restaurant [ville]' ne vous voient pas"
 - "Pas de fiche TripAdvisor → invisible pour les touristes internationaux"

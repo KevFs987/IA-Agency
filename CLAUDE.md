@@ -207,11 +207,29 @@ Afrique subsaharienne, Caraïbes, îles du Pacifique, TPE en Europe.
 
 Toutes les extensions définies en section 4 sont **complètes et opérationnelles**.
 
+### geo-social v2.0 — Architecture 5 agents spécialisés (2026-03-20)
+
+`geo-social` a été upgradé vers une architecture parallèle à 5 agents spécialisés,
+calquée sur le full audit `/geo audit`. Chaque agent est challengé et validé
+(process de revue externe appliqué à chaque fichier).
+
+| Agent | Fichier | Rôle | Score produit |
+|-------|---------|------|--------------|
+| geo-social-brand-ai | `agents/geo-social-brand-ai.md` | Entité marque + citations LLM | Brand Entity Score |
+| geo-social-local-listings | `agents/geo-social-local-listings.md` | Annuaires + chaîne alimentation LLM | Local Listings Score |
+| geo-social-cross-platform | `agents/geo-social-cross-platform.md` | NAP + unification entité | Cross-Platform Score |
+| geo-social-content-quality | `agents/geo-social-content-quality.md` | Contenu E-E-A-T + blocs citables | Content Quality Score |
+| geo-social-sentiment | `agents/geo-social-sentiment.md` | Réputation + seuils LLM | Sentiment Score |
+
+**Score GEO Social** = sentiment×25% + listings×25% + brand×20% + content×15% + cross×15%
+
+Documentation technique : `knowledge/agents/geo-social-architecture.md`
+
 ### Extensions priorité HAUTE (6/6)
 
 | Extension | Commande | Statut | Fichier |
 |-----------|----------|--------|---------|
-| geo-social | `/geo audit https://facebook.com/...` | ✅ Complète | `skills/geo-social/SKILL.md` |
+| geo-social | `/geo audit https://facebook.com/...` | ✅ v2.0 — 5 agents parallèles | `skills/geo-social/SKILL.md` |
 | geo-discover | `/geo audit "Nom de marque"` | ✅ Complète | `skills/geo-discover/SKILL.md` |
 | geo-readiness | `/geo readiness <url-ou-nom>` | ✅ Complète | `skills/geo-readiness/SKILL.md` |
 | geo-outreach | `/geo outreach <url-ou-nom>` | ✅ Complète | `skills/geo-outreach/SKILL.md` |
@@ -247,7 +265,7 @@ Toutes les extensions définies en section 4 sont **complètes et opérationnell
 | `/vault research "<sujet>" [--category ...]` | ✅ Complète | `skills/vault-research/SKILL.md` |
 | `/vault veille [--mois YYYY-MM]` | ✅ Complète | `skills/vault-veille/SKILL.md` |
 
-**Score global : 14/14 extensions implémentées (100%)**
+**Score global : 14/14 extensions implémentées (100%) + geo-social upgradé v2.0**
 
 ### Architecture — Knowledge Vault
 
@@ -265,6 +283,7 @@ knowledge/
   veille/           ← rapports delta mensuels (5 vecteurs)
   concurrents/      ← benchmark concurrents locaux
   prospects/        ← fiches prospects enrichies
+  agents/           ← architecture et documentation des agents spécialisés
 ```
 
 Tous les skills du projet lisent le vault en **Phase 0 optionnelle** avant d'agir.
