@@ -136,25 +136,72 @@ Si le fetch retourne une page vide ou un login wall :
 
 ## Étape 2.5 — Packaging des données pour les agents
 
-Après l'extraction (étape 2), consolider un objet `social_context` à passer aux 5 agents :
+Après l'extraction (étape 2), consolider un objet `social_context` à passer aux 5 agents.
+
+### 2.5a — Détermination du secteur_type
+
+Le `secteur_type` est utilisé par les agents pour ajuster leurs sous-critères internes
+*avant* de calculer leur score 0-100. Il doit être déterminé ici, une seule fois.
+
+| business_type | secteur_type |
+|--------------|-------------|
+| restaurant / snack / food truck / café | `tourisme` |
+| hôtel / pension / resort / chambre d'hôtes | `tourisme` |
+| activité touristique / excursion / plongée | `tourisme` |
+| commerce de détail / boutique | `commerce_mixte` |
+| bar / discothèque | `commerce_mixte` |
+| coiffeur / esthétique / spa (local) | `service_local` |
+| plombier / électricien / artisan | `service_local` |
+| médecin / cabinet médical | `service_local` |
+| autre / inconnu | `commerce_mixte` |
+
+### 2.5b — Résolution des conflits de nom
+
+Avant de passer `brand_name` aux agents, déterminer le nom canonique selon l'ordre de priorité :
+
+1. **Registre du commerce PF (RCCM)** — si fourni par le client → priorité absolue
+2. **GBP vérifiée** — si fiche vérifiée trouvée à l'étape 3 → second rang
+3. **Nom Facebook** — page professionnelle → référence par défaut
+4. **Nom Instagram** — si pas de Facebook
+
+Documenter : `canonical_name_source: rccm / gbp_verified / facebook / instagram`
+
+Si des agents remontent des variantes de nom en phase 2, la règle de résolution
+est : **la source prioritaire ci-dessus l'emporte**. L'orchestrateur (ce fichier)
+consolide avant de construire le rapport final.
+
+### 2.5c — Chargement des seuils LLM
+
+```bash
+# Lire les seuils depuis le fichier de configuration unique
+cat config/llm-thresholds.json
+```
+
+Ne jamais coder les seuils en dur dans ce fichier ni dans les agents.
+Toute mise à jour des seuils se fait dans `config/llm-thresholds.json` uniquement.
+
+### 2.5d — Objet social_context final
 
 ```json
 {
-  "brand_name":     "[nom exact de la page]",
-  "brand_variants": "[variantes de nom détectées si plusieurs]",
-  "business_type":  "[restaurant / hôtel / commerce / activité / service / autre]",
-  "location":       "[ville + île]",
-  "phone":          "[+689 XX XX XX XX ou absent]",
-  "address":        "[adresse ou absent]",
-  "website_listed": "[URL ou absent]",
-  "facebook_url":   "[URL ou absent]",
-  "instagram_url":  "[URL ou absent]",
-  "tiktok_url":     "[URL ou absent]",
-  "followers":      "[N]",
-  "last_post_date": "[date]",
-  "post_frequency": "[posts/semaine estimé]",
-  "bio_text":       "[texte complet de la bio]",
-  "account_type":   "[personnel / page_pro / inconnu]"
+  "brand_name":            "[nom canonique — voir 2.5b]",
+  "canonical_name_source": "[rccm / gbp_verified / facebook / instagram]",
+  "brand_variants":        "[variantes détectées, séparées par virgule]",
+  "business_type":         "[restaurant / hôtel / commerce / activité / service / autre]",
+  "secteur_type":          "[tourisme / commerce_mixte / service_local — voir 2.5a]",
+  "location":              "[ville + île]",
+  "phone":                 "[+689 XX XX XX XX ou absent]",
+  "address":               "[adresse ou absent]",
+  "website_listed":        "[URL ou absent]",
+  "facebook_url":          "[URL ou absent]",
+  "instagram_url":         "[URL ou absent]",
+  "tiktok_url":            "[URL ou absent]",
+  "followers":             "[N]",
+  "last_post_date":        "[date]",
+  "post_frequency":        "[posts/semaine estimé]",
+  "bio_text":              "[texte complet de la bio]",
+  "account_type":          "[personnel / page_pro / inconnu]",
+  "llm_thresholds":        "[objet lu depuis config/llm-thresholds.json]"
 }
 ```
 
@@ -164,6 +211,11 @@ Après l'extraction (étape 2), consolider un objet `social_context` à passer a
 
 Lancer les 5 agents **simultanément** en passant le `social_context` à chacun.
 Ne pas attendre la fin d'un agent pour lancer le suivant.
+
+> **Mode rapide (`--quick`)** : lancer uniquement les agents listings + sentiment.
+> Formule alternative : `Score Quick = score_listings × 0.50 + score_sentiment × 0.50`
+> Afficher dans le rapport : "⚠️ Score partiel — 2 agents sur 5 exécutés.
+> Lancer `/geo audit [url]` pour l'analyse complète (5 agents)."
 
 ```
 LANCEMENT PARALLÈLE :

@@ -160,15 +160,20 @@ Score GEO Social = (
 
 ## Sources de recherche principales
 
-| Source | Donnée clé | Statut |
-|--------|-----------|--------|
-| SOCi Local Visibility Index 2026 | Seuils de référence LLM (observés, non absolus) | Corrélation US → prudence PF |
-| Georgia Tech / Princeton 2024 | Blocs citables 134-167 mots | Adopté comme standard repo |
-| INFORMS Journal 2024 | Biais touristique 10-18% | Varie par établissement/destination |
-| Utz & Wolff 2025 | sameAs markup corrélé citations AI | Corrélation observée, non causalité |
-| BrightLocal 2025 | NAP inconsistency corrélé ranking local | Corrélation, nombreuses variables |
-| Hall et al. 2025 | TripAdvisor source n°1 Perplexity travel | Périmètre travel uniquement |
-| Ahrefs déc. 2025 | Brand mentions r=0,334 vs backlinks r=0,19 | Corrélé, non causal |
+| Source | Donnée clé | Périmètre | Vérifiée ? |
+|--------|-----------|----------|-----------|
+| SOCi Local Visibility Index 2026 | Seuils de référence LLM (observés, non absolus) | 350k établissements US — rapport industry payant, résumé public | ✓ Indicative |
+| Georgia Tech / Princeton 2024 | Blocs citables 134-167 mots | Étude académique contenu web indexé LLM | ✓ Indicative |
+| INFORMS Journal 2024 | Biais touristique 10-18% | Journal académique peer-reviewed — périmètre multi-destinations | ✓ Vérifiée |
+| Utz & Wolff 2025 | sameAs markup corrélé citations AI | 500 sites EU avec JSON-LD — corrélation observée | ✓ Indicative |
+| BrightLocal 2025 | NAP inconsistency corrélé ranking local | Rapport industry annuel (Local Citations Study) | ✓ Indicative |
+| Hall et al. 2025 | TripAdvisor source préférentielle Perplexity travel | **Travel uniquement** — auteurs académiques ou industry non confirmé | ⚠️ À vérifier |
+| Ahrefs déc. 2025 | Brand mentions r=0,334 vs backlinks r=0,19 | Analyse Ahrefs interne sur corpus web | ✓ Indicative |
+
+> **Colonne "Vérifiée ?"** :
+> - ✓ Vérifiée : source peer-reviewed ou rapport public avec méthodologie documentée
+> - ✓ Indicative : rapport industry ou analyse interne — à utiliser comme orientation, non comme preuve
+> - ⚠️ À vérifier : source citée mais non confirmée — ne pas utiliser comme argument commercial
 
 ---
 
@@ -196,8 +201,19 @@ permettant un suivi de progression vers le niveau 4 (GEO-ready).
 ## Idées d'implémentation
 
 - **Auto-packaging** : l'étape 2.5 du skill construit le `social_context` JSON
-  une seule fois et le passe à tous les agents → évite les WebFetch redondants
+  une seule fois (incluant `secteur_type`) et le passe à tous les agents → évite les WebFetch redondants
+- **Secteur_type** : déterminé par l'orchestrateur en 2.5a, passé à tous les agents pour ajuster
+  leurs sous-critères internes *avant* calcul du score 0-100 — le score 0-100 est donc
+  toujours comparable entre secteurs
+- **Résolution de conflits de nom** : étape 2.5b de l'orchestrateur — priorité :
+  RCCM > GBP vérifié > Facebook > Instagram. Un seul nom canonique passe aux agents.
 - **Fallback gracieux** : si un agent échoue, le score est calculé sur les 4 restants
   avec repondération proportionnelle → pas de rapport bloqué
-- **Mode rapide** : si `--quick` est passé en argument, n'exécuter que les agents
-  listings et sentiment (les deux plus impactants à 50%) → rapport en < 2 min
+- **Mode rapide** (`--quick`) : agents listings + sentiment uniquement.
+  Formule : `Score Quick = score_listings × 0.50 + score_sentiment × 0.50`
+  Affichage obligatoire : "⚠️ Score partiel — 2 agents sur 5. Lancer /geo audit [url] pour l'analyse complète."
+- **Seuils LLM externalisés** : `config/llm-thresholds.json` — une seule mise à jour annuelle
+  quand SOCi publie un nouveau rapport
+- **Plafond 60/100** : ce plafond s'applique au score Cross-Platform *seul* (pas de sameAs
+  déployable sans site web) — PAS au score final agrégé. Une entreprise social-only peut
+  théoriquement atteindre 100/100 si sa réputation, ses listings et son contenu sont excellents.

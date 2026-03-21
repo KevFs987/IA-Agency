@@ -1,0 +1,38 @@
+{
+  "_comment": "Seuils de note minimum observés pour apparaître dans les recommandations LLM. Mettre à jour ici uniquement — tous les agents lisent ce fichier.",
+  "_source": "SOCi Local Visibility Index 2026 — 350 000 établissements US. Seuils observés par corrélation, non garantis causalement. Validité PF non confirmée.",
+  "_warning": "Ces seuils peuvent évoluer au fur et à mesure des mises à jour algorithmiques des LLM. Vérifier SOCi annuellement.",
+
+  "thresholds": {
+    "chatgpt": {
+      "rating": 4.3,
+      "min_reviews": 10,
+      "primary_source": "Google Maps / GBP",
+      "note": "Seuil de référence observé — non garanti"
+    },
+    "perplexity": {
+      "rating": 4.1,
+      "min_reviews": 5,
+      "primary_source": "TripAdvisor (partenariat données direct)",
+      "note": "Seuil de référence observé — non garanti"
+    },
+    "gemini": {
+      "rating": 3.9,
+      "min_reviews": 3,
+      "primary_source": "Google Business Profile (accès direct)",
+      "note": "100% précision GBP confirmée. Ask Maps (mars 2026) : comportement non encore validé empiriquement sur requêtes PF — afficher comme 'estimation' dans les rapports clients."
+    }
+  },
+
+  "metadata": {
+    "source_name": "SOCi Local Visibility Index 2026",
+    "source_type": "rapport_industry",
+    "source_accessible": "payant — résumé public disponible",
+    "source_verified": true,
+    "sample_size": "350000 établissements US",
+    "geographic_scope": "US — transposabilité PF prudente",
+    "updated": "2026-03-20",
+    "expires": "2027-03-20",
+    "next_review": "2027-01-01"
+  }
+}

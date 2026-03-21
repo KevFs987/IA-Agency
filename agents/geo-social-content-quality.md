@@ -218,9 +218,19 @@ Score citabilité blocs :
 
 ## Étape 6 — Analyse bilingue FR/EN
 
-> **Sur-pondéré pour le marché PF** : 70%+ des revenus potentiels viennent du tourisme.
-> Les touristes (américains, européens, japonais) cherchent en anglais sur ChatGPT/Perplexity
-> **avant d'arriver sur l'île**. Une page 100% française est invisible pour ce segment.
+> **Pondération dépendante du `secteur_type`** (fourni par l'orchestrateur en étape 2.5a).
+> L'ajustement est effectué ici, *avant* le calcul du score 0-100, pour que les scores
+> restent comparables entre établissements.
+
+| secteur_type | Poids bilingue | Poids fréquence | Justification |
+|-------------|---------------|----------------|--------------|
+| `tourisme` | **20 pts** | **15 pts** | 70%+ revenus = tourisme — EN critique |
+| `commerce_mixte` | **15 pts** | **18 pts** | Clientèle mixte locale/touristique |
+| `service_local` | **10 pts** | **20 pts** | Clientèle locale — FR suffit |
+
+> Pour `service_local` : les 10 pts libérés par la réduction bilingue sont redistribués
+> sur la fréquence (20 pts au lieu de 15) — la régularité compte plus que la langue pour
+> un plombier ou un coiffeur.
 
 Vérifier dans les posts et la bio :
 - Posts en français uniquement : ✓/✗
@@ -304,16 +314,20 @@ Identifier et signaler :
 
 ## Calcul du Content Quality Score (0-100)
 
-| Composante | Points max | Étape |
-|-----------|-----------|------|
-| Bilingue FR/EN | **20 pts** | Étape 6 |
-| Densité d'information | **25 pts** | Étape 3 |
-| Signaux E-E-A-T | **20 pts** | Étape 4 |
-| Blocs citables (bio + épinglé) | **20 pts** | Étape 5 |
-| Fréquence de publication | **15 pts** | Étape 2 |
-| Crédibilité accessible | **10 pts** | Étape 8 |
-| **Sous-total** | **110 pts** | — |
-| **Plafond** | **100 pts** | Score = min(sous-total, 100) |
+> Les points bilingue et fréquence sont ajustés selon `secteur_type` (fourni par
+> l'orchestrateur en 2.5a) *avant* ce calcul — le score 0-100 est donc toujours
+> comparable entre un hôtel et un plombier.
+
+| Composante | tourisme | commerce_mixte | service_local | Étape |
+|-----------|---------|---------------|--------------|------|
+| Bilingue FR/EN | **20 pts** | **15 pts** | **10 pts** | Étape 6 |
+| Fréquence de publication | **15 pts** | **18 pts** | **20 pts** | Étape 2 |
+| Densité d'information | **25 pts** | **25 pts** | **25 pts** | Étape 3 |
+| Signaux E-E-A-T | **20 pts** | **20 pts** | **20 pts** | Étape 4 |
+| Blocs citables (bio + épinglé) | **20 pts** | **20 pts** | **20 pts** | Étape 5 |
+| Crédibilité accessible | **10 pts** | **10 pts** | **10 pts** | Étape 8 |
+| **Sous-total** | **110 pts** | **108 pts** | **105 pts** | — |
+| **Plafond** | **100 pts** | **100 pts** | **100 pts** | min(sous-total, 100) |
 
 **Pénalités déduites du score final :**
 

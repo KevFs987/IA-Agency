@@ -264,45 +264,75 @@ Score réponses propriétaire :
 
 ---
 
-## Étape 7 — Aspect-Based Sentiment Analysis (ABSA)
+## Étape 7 — Extraction de mots-clés par aspect
 
-L'ABSA extrait les aspects récurrents mentionnés dans les avis (cuisine, service,
-prix, ambiance, localisation) et leur sentiment associé.
+> **Clarification technique** : ce n'est pas de l'Aspect-Based Sentiment Analysis
+> au sens strict (ABSA complète nécessite GPU + modèle entraîné). C'est une
+> **extraction de mots-clés fréquents par catégorie** avec scoring de polarité simple.
+> Plus fiable techniquement, plus honnête dans le rapport client.
+>
+> Limites explicites du lexique utilisé :
+> - Ne couvre pas les expressions polynésiennes locales ("trop cher pour un fare", "service bof bof")
+> - Ne couvre pas les mélanges FR/tahitien
+> - Les avis < 5 mots sont ignorés (trop courts pour extraire un signal)
+> - Validation humaine recommandée si le résultat semble incohérent avec les notes
 
-**Méthode sans GPU (accessible en production) :**
+**Méthode — extraction mots-clés par catégorie :**
 
 ```python
-# Approche légère : regex + lexique de sentiment
-# ABSA complète (PyABSA, DistilCamemBERT) nécessite GPU — hors scope ici
+# Lexique de mots-clés par aspect (FR + EN)
+# Scoring simple : mention positive (+1), négative (-1), neutre (0)
 
-aspects_keywords = {
-    'qualite_produit': ['délicieux', 'excellent', 'frais', 'bon', 'mauvais', 'décevant', 'delicious', 'fresh', 'tasty'],
-    'service':        ['rapide', 'sympa', 'accueil', 'lent', 'impoli', 'friendly', 'slow', 'rude', 'service'],
-    'prix_valeur':    ['cher', 'rapport qualité', 'abordable', 'overpriced', 'value', 'expensive', 'affordable'],
-    'ambiance':       ['cadre', 'vue', 'calme', 'bruyant', 'atmosphere', 'view', 'beautiful', 'noisy'],
-    'localisation':   ['accès', 'parking', 'central', 'isolated', 'location', 'easy to find']
+aspect_keywords = {
+    'qualite_produit': {
+        'positif': ['délicieux', 'excellent', 'frais', 'savoureux', 'bon', 'super', 'délice',
+                    'delicious', 'fresh', 'tasty', 'amazing', 'great food'],
+        'negatif': ['mauvais', 'décevant', 'fade', 'froid', 'pas frais',
+                    'bad', 'disappointing', 'tasteless', 'cold']
+    },
+    'service': {
+        'positif': ['rapide', 'sympa', 'accueil', 'souriant', 'attentionné', 'aimable',
+                    'fast', 'friendly', 'attentive', 'welcoming'],
+        'negatif': ['lent', 'impoli', 'désagréable', 'long attente', 'oublié',
+                    'slow', 'rude', 'unfriendly', 'ignored']
+    },
+    'prix_valeur': {
+        'positif': ['abordable', 'rapport qualité', 'prix correct', 'raisonnable',
+                    'affordable', 'value', 'reasonable', 'worth it'],
+        'negatif': ['cher', 'trop cher', 'hors de prix', 'pas donné',
+                    'expensive', 'overpriced', 'not worth']
+    },
+    'ambiance': {
+        'positif': ['cadre', 'vue', 'calme', 'magnifique', 'décor', 'beau',
+                    'beautiful', 'great view', 'atmosphere', 'lovely'],
+        'negatif': ['bruyant', 'sombre', 'bondé', 'bruit',
+                    'noisy', 'crowded', 'dark', 'cramped']
+    },
+    'localisation': {
+        'positif': ['central', 'facile accès', 'bien situé', 'proche',
+                    'easy to find', 'great location', 'convenient'],
+        'negatif': ['loin', 'difficile', 'isolé', 'parking',
+                    'hard to find', 'isolated', 'far']
+    }
 }
 
-# Pour chaque avis accessible :
-# 1. Détecter les aspects mentionnés
-# 2. Scorer positif (+1) ou négatif (-1) selon les mots de sentiment adjacents
-# 3. Agréger par aspect
+# Pour chaque avis (> 5 mots) :
+# 1. Identifier les aspects mentionnés
+# 2. Comptabiliser les occurrences positives / négatives par aspect
+# 3. Calculer le ratio positif/total par aspect
 ```
 
-> **Limite explicite** : les avis en français polynésien avec mélanges linguistiques
-> (FR + tahitien, créole local, abréviations orales) produisent des extractions partielles.
-> Cette ABSA est une approximation — validation humaine recommandée sur les résultats,
-> en particulier si les avis semblent diverger du score calculé.
-
-**Aspects à extraire et présenter :**
+**Résultats à présenter :**
 
 ```
-absa_results:
-  qualite_produit:  [positif / négatif / neutre] — [N mentions]
-  service:          [positif / négatif / neutre] — [N mentions]
-  prix_valeur:      [positif / négatif / neutre] — [N mentions]
-  ambiance:         [positif / négatif / neutre] — [N mentions]
-  localisation:     [positif / négatif / neutre] — [N mentions]
+keyword_extraction:
+  qualite_produit:  [mentions_positives/total — ex : 8/10 = 🟢] — mots clés : [liste]
+  service:          [mentions_positives/total] — mots clés : [liste]
+  prix_valeur:      [mentions_positives/total] — mots clés : [liste]
+  ambiance:         [mentions_positives/total] — mots clés : [liste]
+  localisation:     [mentions_positives/total] — mots clés : [liste]
+
+nota: extraction partielle si avis < 5 mots ou mélange FR/tahitien — validation recommandée
 ```
 
 ---
@@ -380,14 +410,17 @@ Inclure dans le rapport :
 
 ### 🌡️ Thermomètre LLM
 
-| Moteur IA | Note actuelle | Seuil requis | Statut |
-|----------|--------------|-------------|--------|
-| ChatGPT | [X.X★ / N avis] | 4,3★ | ✅ Atteint / ❌ Non atteint |
-| Perplexity | [X.X★ / N avis] | 4,1★ | ✅ Atteint / ❌ Non atteint |
-| Gemini | [X.X★ sur GBP] | 3,9★ | ✅ Atteint / ❌ Non atteint |
+| Moteur IA | Note actuelle | Seuil requis | Statut | Fiabilité |
+|----------|--------------|-------------|--------|----------|
+| ChatGPT | [X.X★ / N avis — Google Maps] | 4,3★ | ✅ Atteint / ❌ Non atteint | Observé |
+| Perplexity | [X.X★ / N avis — TripAdvisor] | 4,1★ | ✅ Atteint / ❌ Non atteint | Observé |
+| Gemini | [X.X★ / N avis — GBP] | 3,9★ | ✅ Atteint / ❌ Non atteint | **Estimation** ⚠️ |
 
-> _Seuils de référence observés (SOCi 2026 — 350 000 établissements US). Peuvent varier
-> selon le secteur et l'évolution des LLM._
+> _⚠️ Gemini : précision GBP confirmée. Comportement Ask Maps (mars 2026) non encore validé
+> empiriquement sur requêtes PF — score Gemini = estimation basée sur données GBP disponibles._
+>
+> _Seuils lus depuis `config/llm-thresholds.json` (SOCi 2026). Peuvent varier selon
+> le secteur et l'évolution des LLM._
 
 ### 📊 Confiance statistique (Wilson Score)
 
