@@ -48,6 +48,7 @@ allowed-tools: Read, Grep, Glob, Bash, WebFetch, Write
 | `/geo rewrite-page <url>` | Réécriture E-E-A-T d'une page existante + diff commenté pour le client |
 | `/geo content-calendar <url> <mois>` | Calendrier éditorial N mois basé sur les gaps + saisonnalité polynésienne |
 | `/geo social-to-site <url-sociale>` | Brief complet de site one-page FR/EN généré depuis le contenu social existant |
+| `/geo citations <url-ou-nom>` | Share of Model (SoM) : mesure la fréquence de citation sur Perplexity, Google, Bing — identifie les concurrents cités à la place |
 
 ---
 
@@ -160,6 +161,7 @@ Adjust recommendations based on detected type. Local businesses need LocalBusine
 | 21 | geo-rewrite-page | `skills/geo-rewrite-page/` | Réécriture E-E-A-T d'une page existante |
 | 22 | geo-content-calendar | `skills/geo-content-calendar/` | Calendrier éditorial N mois, saisonnalité polynésienne |
 | 23 | geo-social-to-site | `skills/geo-social-to-site/` | Brief site one-page FR/EN depuis contenu social existant |
+| 24 | geo-citations | `skills/geo-citations/` | Share of Model (SoM) : présence dans les réponses IA sur 8 requêtes types |
 
 ---
 
@@ -206,6 +208,7 @@ All commands generate structured output:
 | `/geo rewrite-page` | `REWRITE-[slug-page]-[date].md` |
 | `/geo content-calendar` | `CONTENT-CALENDAR-[nom]-[periode].md` |
 | `/geo social-to-site` | `SITE-BRIEF-[nom]-[date].md` (brief complet prêt pour développeur) |
+| `/geo citations` | `GEO-CITATIONS-[nom]-[date].md` (SoM score + matrice requêtes + analyse concurrentielle) |
 
 ---
 
