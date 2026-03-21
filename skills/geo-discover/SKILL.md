@@ -146,6 +146,34 @@ Analyser les premiers résultats organiques :
 - Avis sur Booking / Airbnb / Expedia si hôtel / location
 ```
 
+### 2.9 Vérification de l'empreinte IA (Perplexity)
+
+```
+WebFetch : https://www.perplexity.ai/search?q=[nom+encodé]+[localisation]
+
+Objectif : mesurer ce que les IA génératives "savent" sur l'entreprise,
+et détecter les erreurs ou informations obsolètes.
+
+Contexte : les LLMs ont une précision de ~68% sur les données d'établissements
+locaux dans les marchés peu digitalisés (SOCi Local Search Report 2026).
+32% des informations peuvent être incorrectes, obsolètes, ou confondues
+avec un autre établissement.
+
+Analyser :
+- L'entreprise est-elle citée dans les résultats Perplexity ?
+- Nom affiché : correspond au nom réel ? (risque de confusion avec homonymes)
+- Adresse / localisation : correcte ou obsolète ?
+- Téléphone : correct ou numéro périmé ?
+- Horaires : si mentionnés, correspondent-ils aux données Google Maps ?
+- Informations erronées : prix, menu, services qui n'existent plus ?
+- L'IA confond-elle avec une autre entreprise du même secteur ?
+
+Classer le résultat en 3 catégories :
+- ✅ Conforme — informations présentes et correctes
+- ⚠️ Partiel — présente mais avec erreurs ou infos manquantes
+- ❌ Absent ou erroné — non cité ou informations fausses
+```
+
 ---
 
 ## Étape 3 — Consolidation du profil
@@ -186,6 +214,11 @@ Après toutes les recherches, construire le profil consolidé :
     },
     "wikipedia": {
       "present": false
+    },
+    "perplexity_ia": {
+      "statut": "conforme | partiel | absent_ou_errone",
+      "est_citee": true,
+      "discordances": ["liste des erreurs détectées — vide si conforme"]
     }
   },
   "score_maturite": 35,
@@ -242,6 +275,7 @@ Utiliser la même grille que `geo-social` :
 | TripAdvisor | ✓ / ✗ | [Note] |
 | Pages Jaunes | ✓ / ✗ | [Note] |
 | Wikipedia | ✓ / ✗ | [Note] |
+| **Perplexity / IA** | ✅ Conforme / ⚠️ Partiel / ❌ Absent ou erroné | [Détail des erreurs si applicable] |
 
 ### Informations de contact trouvées
 
@@ -250,6 +284,27 @@ Utiliser la même grille que `geo-social` :
 | Téléphone | [numéro] / Non trouvé | [Source] |
 | Adresse | [adresse] / Non trouvée | [Source] |
 | Email | [email] / Non trouvé | [Source] |
+
+---
+
+## Empreinte IA — Ce que ChatGPT / Perplexity savent sur vous
+
+> ℹ️ Les IA génératives utilisées par vos clients ont une précision d'environ 68% sur les
+> données d'établissements locaux. 1 information sur 3 peut être incorrecte ou obsolète.
+
+[Si statut = ✅ Conforme]
+→ "Les informations que les IA affichent sur [nom] sont exactes et à jour. ✅"
+
+[Si statut = ⚠️ Partiel]
+→ "Les IA mentionnent [nom] mais avec des informations incorrectes :"
+   - [Lister chaque discordance détectée]
+→ "Un client qui planifie son voyage peut recevoir une mauvaise adresse,
+   un numéro obsolète, ou des horaires erronés."
+
+[Si statut = ❌ Absent ou erroné]
+→ "Les IA génératives ne citent pas [nom] ou le confondent avec un autre établissement."
+→ "Cela signifie que vos futurs clients touristes, s'ils posent la question sur ChatGPT,
+   ne vous trouvent pas — ou reçoivent des informations sur un concurrent."
 
 ---
 
