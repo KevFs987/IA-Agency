@@ -3,7 +3,7 @@ updated: 2026-02-18
 name: geo-platform-analysis
 description: >
   Platform optimization specialist analyzing readiness for Google AI Overviews,
-  ChatGPT web search, Perplexity AI, Google Gemini, and Bing Copilot.
+  ChatGPT web search, Perplexity AI, Google Gemini, and Apple Maps / Siri.
 allowed-tools: Read, Bash, WebFetch, Write, Glob, Grep
 ---
 
@@ -44,11 +44,13 @@ Google AI Overviews pull from indexed content and favor pages that already rank 
 
 ChatGPT web search (powered by Bing index + OAI-SearchBot) has distinct preferences. Analyze for:
 
-**Entity Recognition:**
-- Does the brand/site appear on Wikipedia? (Strongest entity signal for ChatGPT)
-- Is the brand on Wikidata with structured properties?
-- Are there authoritative third-party sources confirming the entity?
-- Does the page use Organization/Person schema with sameAs linking to Wikipedia, Wikidata, and social profiles?
+**Entity Recognition — Adapté marché PF :**
+- Pour les **hôtels 4-5★ et groupes** : Présence Wikipedia ? Wikidata ? (signal fort)
+- Pour les **TPE/PME locales** (restaurant, commerce, activité) : Wikipedia est quasi-inaccessible.
+  Évaluer à la place : GBP vérifiée + TripAdvisor avec avis récents + presse locale PF
+- `sameAs` schema linkant vers TripAdvisor, GBP, et les réseaux sociaux actifs
+- Mentions sur Booking.com ou Expedia (si hébergement) — indexées par ChatGPT
+- Contenu bilingue FR/EN sur le site (signal fort pour les requêtes touristes anglophones)
 
 **Content Preferences:**
 - Factual, concise statements that can be quoted directly
@@ -71,11 +73,12 @@ ChatGPT web search (powered by Bing index + OAI-SearchBot) has distinct preferen
 
 Perplexity uses its own crawler (PerplexityBot) and heavily favors community-validated content and direct sources. Analyze for:
 
-**Community Validation:**
-- Reddit mentions and discussions about the brand/topic (Perplexity heavily indexes Reddit)
-- Forum discussions and Q&A presence (Stack Overflow, Quora)
-- User reviews and testimonials on third-party platforms
-- Social proof signals
+**Community Validation — Adapté marché PF :**
+- **TripAdvisor** : présence et avis récents (Perplexity indexe TripAdvisor en priorité)
+- **Groupes Facebook locaux** : chercher mentions dans groupes voyage Polynésie (signal communautaire fort en PF)
+- **Forums voyage francophones** : TripAdvisor forums, routard.com, forums.airfrance.com
+- **Reddit** : quasi-absent pour le marché PF — ne pas le pénaliser si absent
+- Avis Google Maps récents (< 6 mois) — signal de fraîcheur communautaire
 
 **Source Directness:**
 - Does the content provide primary source information (original data, research, documentation)?
@@ -101,12 +104,12 @@ Perplexity uses its own crawler (PerplexityBot) and heavily favors community-val
 
 Gemini draws from Google's full ecosystem. Analyze for:
 
-**Google Ecosystem Presence:**
-- YouTube channel/videos related to the brand or topic
-- Google Business Profile (for local/business entities)
-- Google Scholar citations (for research/academic entities)
-- Google News inclusion
-- Google Books presence (for publishers/authors)
+**Google Ecosystem Presence — Adapté marché PF :**
+- **Google Business Profile** : fiche complète avec photos, horaires, avis, posts récents ? (signal #1 Gemini)
+- **YouTube** : chaîne officielle ou vidéos clients ? (pertinent pour hôtels/activités)
+- **Google Maps** : fiche bien complétée, note > 4,0 ?
+- Google Scholar / Google Books / Google News : non pertinents pour les TPE/PME polynésiennes
+  → Ne pas pénaliser leur absence pour les commerces locaux
 
 **Knowledge Graph Signals:**
 - Is the entity in Google's Knowledge Graph? (Check for Knowledge Panel indicators)
@@ -125,38 +128,29 @@ Gemini draws from Google's full ecosystem. Analyze for:
 - Knowledge Graph signals: 30 points
 - Content quality alignment: 35 points
 
-### Step 5: Bing Copilot Optimization
+### Step 5: Apple Maps / Siri Optimization
 
-Bing Copilot (Microsoft Copilot) relies on the Bing index and has its own optimization signals. Analyze for:
+> **Contexte PF** : iOS est dominant en Polynésie française (part de marché > 60%).
+> Apple Plans est préinstallé sur tous les iPhones. Siri et Apple Intelligence utilisent
+> Apple Maps comme source primaire pour les requêtes locales. Bing Copilot est marginal
+> en PF (part de marché Bing < 5%). Apple Maps est le vrai 4ème moteur à optimiser.
 
-**Bing Index Signals:**
-- IndexNow protocol support (check for IndexNow API key file or meta tag)
-- Bing Webmaster Tools optimization signals in markup
-- msvalidate.01 meta tag (indicates Bing Webmaster Tools verification)
-- Proper sitemap submission signals
+Analyser pour Apple Maps / Siri :
 
-**Content Preferences:**
-- Clear, structured content that answers questions directly
-- Professional tone and formatting
-- Authoritative sourcing and citations
-- Content suitable for workplace/enterprise queries (Copilot's primary context)
+**Présence Apple Maps :**
+- L'établissement apparaît-il dans Apple Maps ? (chercher via WebFetch ou noter l'absence de signaux)
+- Apple Maps s'appuie sur : Yelp (absent en PF), TripAdvisor, GBP, et données crowdsourcées
+- Signaux de présence : une fiche GBP complète est la meilleure garantie d'une fiche Apple Maps correcte
 
-**Microsoft Ecosystem:**
-- LinkedIn company page presence and completeness
-- GitHub presence (for tech companies/developers)
-- Microsoft-related integrations or partnerships
+**Signaux Siri / Apple Intelligence :**
+- Schema LocalBusiness complet avec adresse, téléphone, horaires → lu par Apple
+- `sameAs` linkant vers TripAdvisor et GBP → renforce l'entité dans Apple Maps
+- Contenu accessible sans JavaScript (Apple Bot ne rend pas le JS)
 
-**Technical Signals:**
-- Bing-compatible structured data
-- Fast page load times
-- Mobile-optimized experience
-- Clean HTML semantics
-
-**Score (0-100):**
-- Bing index signals: 30 points
-- Content preferences: 30 points
-- Microsoft ecosystem: 20 points
-- Technical signals: 20 points
+**Score (0-100) :**
+- Fiche GBP complète (proxy Apple Maps) : 50 points
+- TripAdvisor présent avec avis récents : 30 points
+- Schema LocalBusiness complet : 20 points
 
 ### Step 6: Cross-Platform Comparison
 
@@ -167,6 +161,15 @@ After scoring all five platforms individually:
 3. Calculate the **Platform Readiness Average** across all five.
 4. Identify **cross-platform synergies** (actions that improve multiple platforms simultaneously, e.g., Wikipedia presence helps ChatGPT, Perplexity, and Gemini).
 5. Identify **platform-specific quick wins** (low-effort actions with high impact for a single platform).
+
+**Check bilingue FR/EN (marché PF) :**
+Le marché polynésien est bilingue. Les touristes (40%+ des clients des secteurs hôtellerie/activités)
+cherchent en anglais. Vérifier :
+- Le site propose-t-il une version anglaise ou du contenu bilingue ?
+- Les balises `hreflang="fr"` et `hreflang="en"` sont-elles en place ?
+- Les meta tags (og:locale, og:locale:alternate) reflètent-ils le bilinguisme ?
+- Pénaliser de 15 points sur Google AIO et Gemini si le site est 100% français
+  pour un secteur à dominance touriste internationale (hôtel, activité, restaurant).
 
 ### Step 7: Platform-Specific Action Items
 
@@ -187,7 +190,7 @@ For each platform, provide 2-3 prioritized, specific action items. Actions must 
 | ChatGPT Web Search | [X]/100 | [Status] |
 | Perplexity AI | [X]/100 | [Status] |
 | Google Gemini | [X]/100 | [Status] |
-| Bing Copilot | [X]/100 | [Status] |
+| Apple Maps / Siri | [X]/100 | [Status] |
 
 **Strongest Platform:** [Name] — [Brief explanation]
 **Weakest Platform:** [Name] — [Brief explanation]
@@ -253,16 +256,15 @@ For each platform, provide 2-3 prioritized, specific action items. Actions must 
 2. [Specific action]
 3. [Specific action]
 
-### Bing Copilot
+### Apple Maps / Siri
 
 **Score: [X]/100**
 
 | Signal Category | Score | Key Findings |
 |---|---|---|
-| Bing Index Signals | [X]/30 | [Findings] |
-| Content Preferences | [X]/30 | [Findings] |
-| Microsoft Ecosystem | [X]/20 | [Findings] |
-| Technical Signals | [X]/20 | [Findings] |
+| Présence Apple Maps / GBP | [X]/50 | [Findings] |
+| TripAdvisor avec avis récents | [X]/30 | [Findings] |
+| Schema LocalBusiness complet | [X]/20 | [Findings] |
 
 **Optimization Actions:**
 1. [Specific action]

@@ -104,14 +104,18 @@ The primary entity identity schema. Check for:
 - `logo`: Logo image URL (ImageObject or URL)
 - `description`: Brief organization description
 - `sameAs`: Array of official social and platform profiles (CRITICAL for AI entity linking)
-  - Wikipedia URL
-  - LinkedIn company page
-  - YouTube channel
-  - Crunchbase profile
-  - Twitter/X profile
-  - Facebook page
-  - GitHub organization (if applicable)
-  - Wikidata entity URL
+  - Wikipedia URL (prioritaire pour hôtels 4★+ et grands groupes ; optionnel pour TPE)
+  - TripAdvisor URL (PRIORITÉ 1 pour tourisme, restauration, hébergement en PF)
+  - Google Business Profile URL
+  - Booking.com URL (si hébergement)
+  - Airbnb URL (si hébergement)
+  - Pages Jaunes PF URL (pagesjaunes.pf — indexé par les LLM locaux)
+  - Facebook page URL
+  - Instagram profile URL
+  - TikTok profile URL (si actif — pertinent PF, 67,5% des adultes)
+  - YouTube channel (si hôtel / activité touristique)
+  - LinkedIn company page (si B2B / recrutement)
+  - Wikidata entity URL (si applicable)
 - `contactPoint`: Customer service, sales, or support contact
 - `address`: Physical address (PostalAddress)
 - `foundingDate`: When the organization was established
@@ -125,13 +129,14 @@ This is the single most important property for GEO. The `sameAs` property tells 
 - Is `sameAs` present on Organization and/or Person schemas?
 - How many platforms are linked?
 - Are the URLs valid and pointing to active profiles?
-- Critical platforms to link:
-  - Wikipedia (strongest signal)
-  - Wikidata
-  - LinkedIn
-  - YouTube
-  - Crunchbase
-  - Social media profiles
+Critical platforms to link (marché PF) :
+  - TripAdvisor (équivalent Wikipedia pour l'hôtellerie-restauration en PF)
+  - Google Business Profile (alimente directement Gemini + ChatGPT)
+  - Booking.com / Airbnb (si hébergement — indexés par tous les LLM)
+  - Pages Jaunes PF (signal d'autorité locale pour les LLM)
+  - Facebook (dominant en PF — 82,3% des adultes)
+  - Instagram / TikTok (si actifs et secteur B2C)
+  - Wikipedia (uniquement si établissement d'envergure nationale/internationale)
 
 **Assessment:** How well does `sameAs` enable cross-platform entity resolution?
 
@@ -181,6 +186,33 @@ Enables sitelinks search box in search results. Check for:
 - `potentialAction` with `SearchAction` type
 - `target` URL template with `{search_term_string}` placeholder
 - `query-input` property properly configured
+
+#### 4g. Schemas Spécifiques Marché PF (Tourisme et Commerce Local)
+
+Ces schemas sont particulièrement pertinents pour le marché polynésien.
+
+**TouristAttraction** (pour activités : plongée, excursions, randonnées, lagons) :
+- `name` : nom de l'activité / site
+- `description` : description avec mentions des îles et pass concernés
+- `geo` : coordonnées GPS (latitude/longitude)
+- `image` : photos de l'activité
+- `openingHoursSpecification` : horaires saison sèche / saison humide
+
+**LodgingBusiness** (sous-type LocalBusiness pour hôtels, pensions, gîtes) :
+- `name`, `address`, `telephone`
+- `starRating` : classement officiel
+- `amenityFeature` : liste des équipements (piscine, snorkeling, transfert aéroport...)
+- `priceRange` : fourchette de prix
+- `checkinTime` / `checkoutTime`
+
+**FoodEstablishment** / **Restaurant** :
+- `servesCuisine` : cuisine française, polynésienne, japonaise, chinoise...
+- `priceRange` : €, €€, €€€
+- `hasMenu` : lien vers la carte (si disponible)
+- `acceptsReservations` : true/false
+- `openingHoursSpecification` : incluant les jours de fermeture hebdomadaire
+
+Pour tous ces schemas en PF : inclure la langue dans le contenu.
 
 ### Step 5: Flag Deprecated and Restricted Schemas
 

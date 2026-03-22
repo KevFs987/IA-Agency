@@ -60,6 +60,7 @@ Extract and evaluate all SEO-relevant meta tags from the page HTML:
 | Open Graph tags | og:title, og:description, og:image, og:url, og:type | Missing = poor social/AI preview |
 | Twitter Card tags | twitter:card, twitter:title, twitter:description, twitter:image | Missing = poor X/Twitter preview |
 | `<link rel="alternate" hreflang="...">` | Present if multilingual site | Missing on multilingual = wrong language served |
+| **hreflang FR/EN (marché PF)** | OBLIGATOIRE si site bilingue tourisme | Absent = touristes anglophones mal servis → pénalité Gemini/ChatGPT |
 
 ### Step 4: Security Headers
 
@@ -124,6 +125,16 @@ Analyze the HTML source for mobile optimization signals:
 Assess Core Web Vitals risk from HTML source analysis. Note: This is a static analysis from HTML; actual field data requires CrUX or PageSpeed Insights.
 
 **Largest Contentful Paint (LCP) Risk Indicators:**
+
+> **Contexte Polynésie française — Performance réseau** :
+> La connectivité PF repose sur des câbles sous-marins (Natitua, Manatua) et la 4G mobile.
+> Les îles éloignées (Marquises, Tuamotu) ont une connectivité limitée.
+> **Seuil critique PF** : Images > 200 KB non compressées = risque fort de bounce.
+> Vidéos auto-play = risque critique. Recommander systématiquement :
+> - Compression WebP pour toutes les images
+> - Lazy loading sur les images hors viewport
+> - Pas de vidéo auto-play sans contrôle utilisateur
+
 - Large hero images without `loading="lazy"` or `fetchpriority="high"`
 - Render-blocking CSS/JS in `<head>` (stylesheets without `media` attribute, scripts without `async`/`defer`)
 - Web fonts loaded without `font-display: swap` or `font-display: optional`
@@ -185,6 +196,11 @@ This is the most important check for GEO. AI crawlers (GPTBot, ClaudeBot, Perple
 - **Internationalization**: Check for hreflang tags if the site appears multilingual.
 - **Structured data errors**: Note any JSON-LD syntax issues visible in the source (malformed JSON, missing required fields).
 - **Resource hints**: Check for `<link rel="preconnect">`, `<link rel="dns-prefetch">`, `<link rel="preload">` for performance optimization.
+- **Google Maps embed** : Le site intègre-t-il un Google Maps embed sur la page de contact ou d'accueil ?
+  Un embed Maps = signal de localité fort pour les LLM (Gemini/ChatGPT) + UX mobile essentielle en PF.
+  Vérifier : `<iframe src="https://maps.google.com/...">` ou widget Maps dans le HTML.
+- **Hreflang cohérence** : Si des balises hreflang sont présentes, vérifier que la paire FR/EN est complète
+  et que chaque langue pointe vers l'autre (x-default, fr, en obligatoires si site bilingue tourisme).
 
 ### Step 10: Calculate Technical Score
 

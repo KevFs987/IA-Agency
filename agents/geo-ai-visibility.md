@@ -104,41 +104,63 @@ Calculate **llms.txt Score**:
 - 70 if present, valid, and covers primary content areas.
 - 90-100 if comprehensive with llms-full.txt also available.
 
-### Step 5: Brand Mention Scanning
+### Step 5: Brand Mention Scanning — Calibré marché Polynésie française
 
-Search for the brand/site name across platforms frequently cited by AI models:
+> **Contexte marché PF** : Wikipedia est pertinent uniquement pour les hôtels 4-5★ et les chaînes.
+> Reddit est quasi-inexistant en PF. Les plateformes clés sont TripAdvisor, Google Maps,
+> et la presse locale polynésienne. Apple Maps/Siri monte en puissance avec la dominance iOS.
 
-1. **YouTube**: Use WebFetch to search `site:youtube.com "brand name"` patterns. Check for official channel presence, video count, and engagement.
-2. **Reddit**: Search for brand mentions on Reddit. Check discussion sentiment, subreddit presence, and mention recency.
-3. **Wikipedia (CRITICAL — use API check, not just web search)**:
-   - **FIRST**, run the Wikipedia API directly via Bash to check definitively:
-     ```bash
-     python3 -c "
-     import requests; from urllib.parse import quote_plus
-     brand='[BRAND_NAME]'
-     r=requests.get(f'https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch={quote_plus(brand)}&format=json', headers={'User-Agent':'GEO-Audit/1.0'}, timeout=15)
-     results=r.json().get('query',{}).get('search',[])
-     if results and brand.lower() in results[0].get('title','').lower(): print(f'FOUND: https://en.wikipedia.org/wiki/{results[0][\"title\"].replace(\" \",\"_\")}')
-     else: print('NOT FOUND')
-     "
-     ```
-   - **SECOND**, try WebFetch on `https://en.wikipedia.org/wiki/[Brand_Name]` directly to verify.
-   - **DO NOT** rely solely on web search (`site:wikipedia.org`) — it frequently returns false negatives.
-   - This is the single strongest signal for entity recognition by AI models.
-4. **LinkedIn**: Check for company page presence and completeness.
-5. **Industry/Niche Sources**: Search for the brand on authoritative industry sites, review platforms (G2, Trustpilot, Capterra), and news outlets.
+Rechercher la présence de la marque sur ces plateformes par ordre de priorité :
+
+1. **TripAdvisor** (PRIORITÉ 1 pour tourisme/restauration/hébergement) :
+   - `WebFetch https://www.tripadvisor.fr/Search?q=[nom+encodé]`
+   - Présence ? Note /5 et nombre d'avis ? Classement local ("N°X sur Y restaurants à [ville]") ?
+   - TripAdvisor alimente directement Perplexity — c'est le signal le plus fort pour le marché PF.
+
+2. **Google Maps / Google Business Profile** (PRIORITÉ 1 pour tous secteurs) :
+   - `WebFetch https://www.google.com/maps/search/[nom+encodé]+[localisation]`
+   - Fiche GBP vérifiée ? Note /5 et nombre d'avis ? Photos ? Horaires ? Site web lié ?
+   - Alimente directement Gemini et ChatGPT — signal critique.
+
+3. **Presse locale polynésienne** (signal d'autorité locale) :
+   - Chercher mentions sur tahiti-infos.com, radio1.pf, Les Nouvelles de Tahiti, TNTV
+   - `WebFetch https://www.google.com/search?q=[nom+encodé]+site:tahiti-infos.com+OR+site:radio1.pf`
+   - Toute mention dans la presse locale = signal d'autorité fort pour les LLM
+
+4. **YouTube** (pertinent surtout pour hôtels, activités touristiques) :
+   - Chercher la présence d'une chaîne officielle ou de vidéos de clients
+   - Moins critique pour les TPE locales (snacks, commerces)
+
+5. **Wikipedia** (uniquement si hôtel 4★+ ou groupe) :
+   - Vérifier via API uniquement si l'établissement est de taille significative
+   - Pour les TPE/PME locales : noter "Non applicable — segment TPE" et passer à la suite
+
+6. **Booking.com / Airbnb** (uniquement si hébergement) :
+   - `WebFetch https://www.booking.com/searchresults.fr.html?ss=[nom+encodé]`
+   - Présence ? Note et nombre d'avis ? Lien vers le site officiel ?
 
 For each platform, record:
 - **Present**: Active, recent presence found.
 - **Minimal**: Some presence but sparse or outdated.
 - **Absent**: No meaningful presence found.
+- **N/A**: Platform not relevant for this business type.
 
-Calculate **Brand Mention Score**:
-- Wikipedia presence: 30 points (0 if absent).
-- Reddit discussion presence: 20 points (scale by recency and sentiment).
-- YouTube presence: 15 points.
-- LinkedIn presence: 10 points.
-- Industry/niche sources: 25 points (scale by number and quality).
+Calculate **Brand Mention Score — PF Calibration**:
+
+```
+Pondération adaptée au marché polynésien :
+
+TripAdvisor          30 pts  (si secteur tourisme/resto/hébergement)
+                     15 pts  (si secteur commerce/service local)
+Google Maps/GBP      25 pts  (tous secteurs — alimente Gemini + ChatGPT)
+Presse locale PF     20 pts  (scale par nombre et récence des articles)
+YouTube              10 pts  (scale par présence et engagement)
+Wikipedia             5 pts  (uniquement si hôtel 4★+ ou groupe — sinon 0 et redistribuer)
+Booking/Airbnb       10 pts  (uniquement si hébergement — sinon redistribuer)
+```
+
+**Redistribution si N/A** : Si Wikipedia est N/A pour un TPE, ajouter ses 5 pts à TripAdvisor.
+Si Booking/Airbnb est N/A, ajouter ses 10 pts à Presse locale.
 
 ### Step 6: Compile AI Visibility Report Section
 

@@ -158,6 +158,12 @@ Calculate an approximate Flesch score by sampling 3-5 representative paragraphs:
 
 Optimal readability depends on audience, but 50-70 is generally ideal for web content.
 
+> **Note pour le contenu en français** : La formule Flesch standard est calibrée pour l'anglais.
+> Pour du contenu français, utiliser la formule adaptée par Kandel & Moles (1958) :
+> Flesch-FR = 207 - (1.015 × mots/phrase) - (73.6 × syllabes/mot)
+> Les seuils d'interprétation restent identiques. Pour les sites bilingues FR/EN,
+> calculer les deux scores séparément.
+
 **Paragraph Length:**
 - Average paragraph length (in words)
 - Flag paragraphs over 150 words as "wall of text" concerns
@@ -211,6 +217,29 @@ Evaluate whether the site demonstrates topical authority in the subject area of 
 - Is the content time-sensitive? (News, statistics, technology topics require freshness; evergreen topics are less affected.)
 - Flag content older than 2 years on time-sensitive topics.
 
+### Step 9b: Signaux Bilingues et Localité — Marché Polynésie française
+
+> Ces critères s'appliquent à tout site audité dans un contexte polynésien ou touristique.
+
+**Bilinguisme FR/EN :**
+- Le site propose-t-il une version ou des pages en anglais ? → Signal fort pour les touristes anglophones
+- Les pages clés (accueil, à propos, services, contact) sont-elles disponibles en EN ?
+- Le contenu EN est-il de qualité réelle ou une traduction machine basse qualité ?
+- Score : 0 pts si 100% FR pour un secteur tourisme, +10 pts si FR/EN bien fait
+
+**Signaux de localité polynésienne :**
+Le contenu mentionne-t-il des éléments de géographie locale précis ?
+- Noms d'îles (Tahiti, Moorea, Bora Bora, Rangiroa, Fakarava, Huahine, Raiatea...)
+- Noms de passes, plages, quartiers (pass Avatoru, baie d'Opunohu, quartier Papeete...)
+- Termes en tahitien ou avec traduction intégrée
+- Saisonnalité polynésienne (saison sèche mai-octobre, saison humide novembre-avril)
+Ces signaux renforcent fortement la citabilité locale dans les LLM.
+
+**Score bonus localité (0-10 pts) :**
+- 0 pts : contenu générique sans ancrage géographique précis
+- 5 pts : quelques mentions de localité
+- 10 pts : contenu riche en références locales précises
+
 ### Step 10: Calculate Content Score
 
 Compute the **Content Score (0-100)** by combining:
@@ -225,6 +254,10 @@ Compute the **Content Score (0-100)** by combining:
 | AI Content Assessment | 10% | 10 |
 | Topical Authority | 10% | 10 |
 | Content Freshness | 5% | 5 |
+
+> **Adaptation TPE polynésiennes** : Pour les sites de moins de 5 pages (restaurant, pension, commerce),
+> réduire le poids "Topical Authority" à 5% et redistribuer les 5 pts sur "Trustworthiness".
+> Un petit site bien fait ne doit pas être pénalisé pour ne pas avoir 20 pages de contenu.
 
 Normalize E-E-A-T scores from their 0-25 scale to 0-15 for weighting.
 
