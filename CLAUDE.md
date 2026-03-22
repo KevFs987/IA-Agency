@@ -203,15 +203,14 @@ Afrique subsaharienne, Caraïbes, îles du Pacifique, TPE en Europe.
 
 ---
 
-## 11. Extensions implémentées — état au 2026-03-20
+## 11. Extensions implémentées — état au 2026-03-21
 
 Toutes les extensions définies en section 4 sont **complètes et opérationnelles**.
 
-### geo-social v2.0 — Architecture 5 agents spécialisés (2026-03-20)
+### geo-social v2.0 — Architecture 5 agents spécialisés
 
-`geo-social` a été upgradé vers une architecture parallèle à 5 agents spécialisés,
-calquée sur le full audit `/geo audit`. Chaque agent est challengé et validé
-(process de revue externe appliqué à chaque fichier).
+`geo-social` utilise une architecture parallèle à 5 agents spécialisés,
+calquée sur le full audit `/geo audit`.
 
 | Agent | Fichier | Rôle | Score produit |
 |-------|---------|------|--------------|
@@ -223,14 +222,34 @@ calquée sur le full audit `/geo audit`. Chaque agent est challengé et validé
 
 **Score GEO Social** = sentiment×25% + listings×25% + brand×20% + content×15% + cross×15%
 
-Documentation technique : `knowledge/agents/geo-social-architecture.md`
+Seuils LLM externalisés dans `config/llm-thresholds.json` (ne jamais coder en dur).
+Documentation architecture : `agents/geo-social-architecture.md`
+
+### geo-discover v1.1 — Vérification empreinte IA (étape 2.9)
+
+Après reconstruction de la présence digitale, `geo-discover` vérifie ce que Perplexity
+sait sur l'entreprise et détecte les erreurs ou confusions avec d'autres établissements.
+
+Contexte : ~68% de précision LLM sur les marchés peu digitalisés (SOCi 2026) → 1 info sur 3
+peut être incorrecte. Ce résultat apparaît dans le rapport comme signal d'alerte client.
+
+### geo-citations — Share of Model (nouveau, 2026-03-21)
+
+Nouveau skill qui mesure la fréquence de citation d'une entreprise dans les réponses IA.
+
+- **Commande** : `/geo citations <url-ou-nom>`
+- **Méthode** : 8 requêtes naturelles (4 FR + 4 EN) testées sur Perplexity, Google, Bing
+- **Score SoM** : 0-100% (part des requêtes où l'entreprise apparaît)
+- **Analyse concurrentielle** : identifie les concurrents cités à la place
+- **Fichier** : `skills/geo-citations/SKILL.md`
+- **Usage commercial** : montrer qu'un concurrent a SoM 35% vs 0% — argument closing puissant
 
 ### Extensions priorité HAUTE (6/6)
 
 | Extension | Commande | Statut | Fichier |
 |-----------|----------|--------|---------|
 | geo-social | `/geo audit https://facebook.com/...` | ✅ v2.0 — 5 agents parallèles | `skills/geo-social/SKILL.md` |
-| geo-discover | `/geo audit "Nom de marque"` | ✅ Complète | `skills/geo-discover/SKILL.md` |
+| geo-discover | `/geo audit "Nom de marque"` | ✅ v1.1 — empreinte IA étape 2.9 | `skills/geo-discover/SKILL.md` |
 | geo-readiness | `/geo readiness <url-ou-nom>` | ✅ Complète | `skills/geo-readiness/SKILL.md` |
 | geo-outreach | `/geo outreach <url-ou-nom>` | ✅ Complète | `skills/geo-outreach/SKILL.md` |
 | geo-teaser-report | `/geo teaser-report <url-ou-nom>` | ✅ Complète | `skills/geo-teaser-report/SKILL.md` |
@@ -251,6 +270,12 @@ Documentation technique : `knowledge/agents/geo-social-architecture.md`
 |----------|--------|---------|
 | `/geo prospect scan "<niche>" "<ville>"` | ✅ Complète | `skills/geo-prospect/SKILL.md` v1.1.0 |
 
+### Nouveau skill GEO (1)
+
+| Extension | Commande | Statut | Fichier |
+|-----------|----------|--------|---------|
+| geo-citations | `/geo citations <url-ou-nom>` | ✅ Complète | `skills/geo-citations/SKILL.md` |
+
 ### Pilotage interne
 
 | Commande | Statut | Fichier |
@@ -265,29 +290,46 @@ Documentation technique : `knowledge/agents/geo-social-architecture.md`
 | `/vault research "<sujet>" [--category ...]` | ✅ Complète | `skills/vault-research/SKILL.md` |
 | `/vault veille [--mois YYYY-MM]` | ✅ Complète | `skills/vault-veille/SKILL.md` |
 
-**Score global : 14/14 extensions implémentées (100%) + geo-social upgradé v2.0**
+**Score global : 15/15 skills opérationnels**
 
-### Architecture — Knowledge Vault
+### Architecture — Knowledge Vault (Obsidian)
 
-Le vault `knowledge/` est le **cerveau central du projet**, consultable par tous les skills.
+Le vault `knowledge/` est le **cerveau central du projet**, versionné dans le repo git.
+Versionné dans git mais `veille/`, `prospects/`, `concurrents/` sont dans `.gitignore`
+(données sensibles clients — ne pas publier sur un repo public).
 
 ```
 knowledge/
-  index.md          ← index auto-mis à jour
+  index.md          ← index auto-mis à jour par les skills
   marche/           ← données marché Polynésie française
   scoring/          ← calibration des scores GEO
   inspiration/      ← innovations importées (US, EU, CN, marchés comparables)
   sales/            ← techniques de vente, prospection, closing
   marketing/        ← marketing digital, campagnes, social media
   ooh-dooh/         ← Out-of-Home et Digital Out-of-Home
-  veille/           ← rapports delta mensuels (5 vecteurs)
-  concurrents/      ← benchmark concurrents locaux
-  prospects/        ← fiches prospects enrichies
+  veille/           ← rapports delta mensuels (5 vecteurs) — ignoré git
+  concurrents/      ← benchmark concurrents locaux — ignoré git
+  prospects/        ← fiches prospects enrichies — ignoré git
   agents/           ← architecture et documentation des agents spécialisés
+  .obsidian/        ← config Obsidian (ouvrir le dossier knowledge/ dans Obsidian)
 ```
 
-Tous les skills du projet lisent le vault en **Phase 0 optionnelle** avant d'agir.
+Sync deux Macs : via `git push / git pull` (remote GitHub configuré).
+Données sensibles (`veille/`, `prospects/`, `concurrents/`) : copie manuelle ou iCloud.
+
+Tous les skills lisent le vault en **Phase 0 optionnelle** avant d'agir.
 Le vault est alimenté par `/vault research` (à la demande) et `/vault veille` (mensuel).
+
+### Identité de marque
+
+`BRAND.md` à la racine — document complet de l'identité Mana IA :
+charte graphique, ton éditorial, pitch selon l'interlocuteur, règles d'or commerciales.
+
+### Génération PDF
+
+`scripts/generate_pdf_report.py` — génère les rapports PDF avec la charte Mana IA.
+Palette, layout A4, composants : gauge score, barres, badges, tableaux.
+Appeler via : `python3 scripts/generate_pdf_report.py --mode [audit|teaser|readiness]`
 
 Générer un rapport d'état à jour : `/agency status`
 
